@@ -16,7 +16,7 @@
 
 ## 3. 技术架构
 - **后端**：Go 1.21+，框架Gin（轻量易扩展），ORM采用GORM（支持多数据库适配）
-- **前端管理端**：Vue3 + Element Plus + TS，构建工具Yarn、Vite，图表库ECharts
+- **前端管理端**：Vue3 + Element Plus，构建工具Vite，图表库ECharts
 - **移动端**：Uniapp（支持微信小程序/Android/iOS），UI组件库uView 3
 - **数据库**：默认SQLite（单文件，零配置），支持切换至MySQL 8.0+（通过配置）
 - **部署**：Docker容器化，前后端同容器部署，环境变量动态配置
