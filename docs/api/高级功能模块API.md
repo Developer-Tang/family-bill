@@ -1,53 +1,75 @@
-# 高级功能模块 API 文档
-
 ##  模块概述
 
 高级功能模块提供家庭记账系统的扩展功能，增强用户体验和系统智能化水平。本模块包括预算管理、标签管理、共享账本、账单提醒、智能分类和汇率换算等功能的API接口。
 
 ##  接口清单
 
-| 功能模块 | 接口路径 | 方法 | 功能描述 |
-|---------|---------|------|--------|
-| **预算管理** | `/api/v1/budgets` | `GET` | 获取预算列表 |
-| | `/api/v1/budgets` | `POST` | 创建预算 |
-| | `/api/v1/budgets/:id` | `PUT` | 更新预算 |
-| | `/api/v1/budgets/:id` | `DELETE` | 删除预算 |
-| | `/api/v1/budgets/:id/status` | `GET` | 获取预算执行状态 |
-| | `/api/v1/budgets/summary` | `GET` | 获取预算汇总信息 |
-| **标签管理** | `/api/v1/tags` | `GET` | 获取标签列表 |
-| | `/api/v1/tags` | `POST` | 创建标签 |
-| | `/api/v1/tags/:id` | `PUT` | 更新标签 |
-| | `/api/v1/tags/:id` | `DELETE` | 删除标签 |
-| | `/api/v1/tags/batch` | `POST` | 批量创建标签 |
-| | `/api/v1/tags/recommend` | `GET` | 获取推荐标签 |
-| **共享账本** | `/api/v1/shared/books` | `GET` | 获取共享账本列表 |
-| | `/api/v1/shared/books/:bookId/members` | `GET` | 获取账本成员列表 |
-| | `/api/v1/shared/books/:bookId/members` | `POST` | 添加共享成员 |
-| | `/api/v1/shared/books/:bookId/members/:userId` | `PUT` | 修改成员权限 |
-| | `/api/v1/shared/books/:bookId/members/:userId` | `DELETE` | 移除共享成员 |
-| | `/api/v1/shared/invitations` | `GET` | 获取邀请列表 |
-| | `/api/v1/shared/invitations` | `POST` | 创建共享邀请 |
-| | `/api/v1/shared/invitations/:id` | `PUT` | 处理邀请 |
-| **账单提醒** | `/api/v1/reminders` | `GET` | 获取提醒列表 |
-| | `/api/v1/reminders` | `POST` | 创建提醒 |
-| | `/api/v1/reminders/:id` | `PUT` | 更新提醒 |
-| | `/api/v1/reminders/:id` | `DELETE` | 删除提醒 |
-| | `/api/v1/reminders/:id/activate` | `PUT` | 激活/停用提醒 |
-| | `/api/v1/reminders/upcoming` | `GET` | 获取即将到来的提醒 |
-| **智能分类** | `/api/v1/smart/category-predict` | `POST` | 预测交易分类 |
-| | `/api/v1/smart/recurring-detection` | `GET` | 检测周期性交易 |
-| | `/api/v1/smart/spending-pattern` | `GET` | 获取消费模式分析 |
-| | `/api/v1/smart/anomaly-detection` | `GET` | 异常消费检测 |
-| **汇率换算** | `/api/v1/currency/rates` | `GET` | 获取汇率列表 |
-| | `/api/v1/currency/convert` | `POST` | 货币转换 |
-| | `/api/v1/currency/supported` | `GET` | 获取支持的货币列表 |
-| | `/api/v1/currency/refresh` | `POST` | 刷新汇率 |
+<!-- tabs:start -->
+<!-- tab:预算管理 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/budgets`](#获取预算列表) | `GET` | 获取预算列表 |
+| [`/api/v1/budgets`](#创建预算) | `POST` | 创建预算 |
+| [`/api/v1/budgets/:id`](#更新预算) | `PUT` | 更新预算 |
+| [`/api/v1/budgets/:id`](#删除预算) | `DELETE` | 删除预算 |
+| [`/api/v1/budgets/:id/status`](#获取预算执行状态) | `GET` | 获取预算执行状态 |
+| [`/api/v1/budgets/summary`](#获取预算汇总信息) | `GET` | 获取预算汇总信息 |
+
+<!-- tab:标签管理 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/tags`](#获取标签列表) | `GET` | 获取标签列表 |
+| [`/api/v1/tags`](#创建标签) | `POST` | 创建标签 |
+| [`/api/v1/tags/:id`](#更新标签) | `PUT` | 更新标签 |
+| [`/api/v1/tags/:id`](#删除标签) | `DELETE` | 删除标签 |
+| [`/api/v1/tags/batch`](#批量创建标签) | `POST` | 批量创建标签 |
+| [`/api/v1/tags/recommend`](#获取推荐标签) | `GET` | 获取推荐标签 |
+
+<!-- tab:共享账本 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/shared/books`](#获取共享账本列表) | `GET` | 获取共享账本列表 |
+| [`/api/v1/shared/books/:bookId/members`](#获取账本成员列表) | `GET` | 获取账本成员列表 |
+| [`/api/v1/shared/books/:bookId/members`](#添加共享成员) | `POST` | 添加共享成员 |
+| [`/api/v1/shared/books/:bookId/members/:userId`](#修改成员权限) | `PUT` | 修改成员权限 |
+| [`/api/v1/shared/books/:bookId/members/:userId`](#移除共享成员) | `DELETE` | 移除共享成员 |
+| [`/api/v1/shared/invitations`](#获取邀请列表) | `GET` | 获取邀请列表 |
+| [`/api/v1/shared/invitations`](#创建共享邀请) | `POST` | 创建共享邀请 |
+| [`/api/v1/shared/invitations/:id`](#处理邀请) | `PUT` | 处理邀请 |
+
+<!-- tab:账单提醒 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/reminders`](#获取提醒列表) | `GET` | 获取提醒列表 |
+| [`/api/v1/reminders`](#创建提醒) | `POST` | 创建提醒 |
+| [`/api/v1/reminders/:id`](#更新提醒) | `PUT` | 更新提醒 |
+| [`/api/v1/reminders/:id`](#删除提醒) | `DELETE` | 删除提醒 |
+| [`/api/v1/reminders/:id/activate`](#激活停用提醒) | `PUT` | 激活/停用提醒 |
+| [`/api/v1/reminders/upcoming`](#获取即将到来的提醒) | `GET` | 获取即将到来的提醒 |
+
+<!-- tab:智能分类 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/smart/category-predict`](#预测交易分类) | `POST` | 预测交易分类 |
+| [`/api/v1/smart/recurring-detection`](#检测周期性交易) | `GET` | 检测周期性交易 |
+| [`/api/v1/smart/spending-pattern`](#获取消费模式分析) | `GET` | 获取消费模式分析 |
+| [`/api/v1/smart/anomaly-detection`](#异常消费检测) | `GET` | 异常消费检测 |
+
+<!-- tab:汇率换算 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/currency/rates`](#获取汇率列表) | `GET` | 获取汇率列表 |
+| [`/api/v1/currency/convert`](#货币转换) | `POST` | 货币转换 |
+| [`/api/v1/currency/supported`](#获取支持的货币列表) | `GET` | 获取支持的货币列表 |
+| [`/api/v1/currency/refresh`](#刷新汇率) | `POST` | 刷新汇率 |
+
+<!-- tabs:end -->
 
 ##  详细接口说明
 
 ###  创建预算
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/budgets
@@ -67,7 +89,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -91,14 +113,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取预算执行状态
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/budgets/:id/status?date=2023-01-15
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -125,7 +147,7 @@ Authorization: Bearer jwt_token_string
 
 ###  创建标签
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/tags
@@ -141,7 +163,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -162,7 +184,7 @@ Authorization: Bearer jwt_token_string
 
 ###  添加共享成员
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/shared/books/:bookId/members
@@ -176,7 +198,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -196,7 +218,7 @@ Authorization: Bearer jwt_token_string
 
 ###  创建提醒
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/reminders
@@ -221,7 +243,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -250,7 +272,7 @@ Authorization: Bearer jwt_token_string
 
 ###  预测交易分类
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/smart/category-predict
@@ -270,7 +292,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -302,7 +324,7 @@ Authorization: Bearer jwt_token_string
 
 ###  货币转换
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/currency/convert
@@ -317,7 +339,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -428,40 +450,6 @@ Authorization: Bearer jwt_token_string
   "last_updated": "2023-01-05T08:00:00Z" // 最后更新时间
 }
 ```
-
-##  高级功能说明
-
-###  预算管理
-
-- 支持按周期设置预算（月度、年度、自定义）
-- 可关联多个分类
-- 支持自动提醒功能
-- 提供预算执行状态跟踪和预警
-- 支持循环预算设置
-
-###  标签系统
-
-- 支持自定义颜色和图标
-- 每个交易可添加多个标签
-- 支持标签批量管理
-- 提供标签使用统计
-- 智能推荐常用标签
-
-###  共享账本机制
-
-- 支持多用户协作记账
-- 细粒度权限控制
-- 邀请机制和权限管理
-- 操作日志追踪
-- 支持家庭和小团队使用
-
-###  智能分析能力
-
-- 基于历史数据的交易分类预测
-- 周期性交易自动检测
-- 个人消费模式分析
-- 异常消费识别和提醒
-- 消费趋势预测
 
 ##  错误码说明
 

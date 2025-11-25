@@ -1,48 +1,66 @@
-# 数据同步与备份模块 API 文档
-
 ##  模块概述
 
 数据同步与备份模块确保多端数据一致性和数据安全，提供数据同步、备份、恢复和导出功能。本模块提供了完整的数据同步机制、数据备份与恢复、数据导入导出等功能的API接口。
 
 ##  接口清单
 
-| 功能模块 | 接口路径 | 方法 | 功能描述 |
-|---------|---------|------|--------|
-| **数据同步** | `/api/v1/sync/status` | `GET` | 获取同步状态 |
-| | `/api/v1/sync/data` | `POST` | 同步数据到服务器 |
-| | `/api/v1/sync/pull` | `GET` | 从服务器拉取最新数据 |
-| | `/api/v1/sync/conflict` | `GET` | 获取数据冲突列表 |
-| | `/api/v1/sync/conflict/:id` | `PUT` | 解决数据冲突 |
-| **数据导出** | `/api/v1/export/data` | `GET` | 导出记账数据 |
-| | `/api/v1/export/transactions` | `GET` | 导出收支记录 |
-| | `/api/v1/export/accounts` | `GET` | 导出账户数据 |
-| | `/api/v1/export/categories` | `GET` | 导出分类数据 |
-| **数据备份** | `/api/v1/backup` | `GET` | 获取备份列表 |
-| | `/api/v1/backup` | `POST` | 创建手动备份 |
-| | `/api/v1/backup/:id` | `GET` | 获取备份详情 |
-| | `/api/v1/backup/:id` | `DELETE` | 删除备份 |
-| | `/api/v1/backup/auto-config` | `GET` | 获取自动备份配置 |
-| | `/api/v1/backup/auto-config` | `PUT` | 设置自动备份配置 |
-| **数据恢复** | `/api/v1/restore/:backupId` | `POST` | 从备份恢复数据 |
-| | `/api/v1/restore/status/:taskId` | `GET` | 获取恢复任务状态 |
-| **数据迁移** | `/api/v1/migrate/import` | `POST` | 导入外部记账数据 |
-| | `/api/v1/migrate/templates` | `GET` | 获取导入模板列表 |
-| | `/api/v1/migrate/preview` | `POST` | 预览导入数据 |
-| **同步配置** | `/api/v1/sync/config` | `GET` | 获取同步配置 |
-| | `/api/v1/sync/config` | `PUT` | 更新同步配置 |
+<!-- tabs:start -->
+<!-- tab:数据同步 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/sync/status`](#获取同步状态) | `GET` | 获取同步状态 |
+| [`/api/v1/sync/data`](#同步数据到服务器) | `POST` | 同步数据到服务器 |
+| [`/api/v1/sync/pull`](#从服务器拉取最新数据) | `GET` | 从服务器拉取最新数据 |
+| [`/api/v1/sync/conflict`](#获取数据冲突列表) | `GET` | 获取数据冲突列表 |
+| [`/api/v1/sync/conflict/:id`](#解决数据冲突) | `PUT` | 解决数据冲突 |
+| [`/api/v1/sync/config`](#获取同步配置) | `GET` | 获取同步配置 |
+| [`/api/v1/sync/config`](#更新同步配置) | `PUT` | 更新同步配置 |
+
+<!-- tab:数据备份 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/backup`](#获取备份列表) | `GET` | 获取备份列表 |
+| [`/api/v1/backup`](#创建手动备份) | `POST` | 创建手动备份 |
+| [`/api/v1/backup/:id`](#获取备份详情) | `GET` | 获取备份详情 |
+| [`/api/v1/backup/:id`](#删除备份) | `DELETE` | 删除备份 |
+| [`/api/v1/backup/auto-config`](#获取自动备份配置) | `GET` | 获取自动备份配置 |
+| [`/api/v1/backup/auto-config`](#设置自动备份配置) | `PUT` | 设置自动备份配置 |
+
+<!-- tab:数据恢复 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/restore/:backupId`](#从备份恢复数据) | `POST` | 从备份恢复数据 |
+| [`/api/v1/restore/status/:taskId`](#获取恢复任务状态) | `GET` | 获取恢复任务状态 |
+
+<!-- tab:数据导入导出 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/export/data`](#导出记账数据) | `GET` | 导出记账数据 |
+| [`/api/v1/export/transactions`](#导出收支记录) | `GET` | 导出收支记录 |
+| [`/api/v1/export/accounts`](#导出账户数据) | `GET` | 导出账户数据 |
+| [`/api/v1/export/categories`](#导出分类数据) | `GET` | 导出分类数据 |
+
+<!-- tab:数据迁移 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/migrate/import`](#导入外部记账数据) | `POST` | 导入外部记账数据 |
+| [`/api/v1/migrate/templates`](#获取导入模板列表) | `GET` | 获取导入模板列表 |
+| [`/api/v1/migrate/preview`](#预览导入数据) | `POST` | 预览导入数据 |
+
+<!-- tabs:end -->
 
 ##  详细接口说明
 
 ###  获取同步状态
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/sync/status?book_id=1
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -62,7 +80,7 @@ Authorization: Bearer jwt_token_string
 
 ###  同步数据到服务器
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/sync/data
@@ -106,7 +124,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -135,7 +153,7 @@ Authorization: Bearer jwt_token_string
 
 ###  创建手动备份
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/backup
@@ -151,7 +169,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -169,7 +187,7 @@ Authorization: Bearer jwt_token_string
 
 ###  从备份恢复数据
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/restore/:backupId
@@ -184,7 +202,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -202,14 +220,14 @@ Authorization: Bearer jwt_token_string
 
 ###  导出记账数据
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/export/data?book_id=1&format=excel&start_date=2023-01-01&end_date=2023-01-31&include_transactions=true&include_accounts=true&include_categories=true
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -227,7 +245,7 @@ Authorization: Bearer jwt_token_string
 
 ###  导入外部记账数据
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/migrate/import
@@ -240,7 +258,7 @@ file=...  // 上传的导入文件
 mapping=...  // 字段映射JSON字符串
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -257,7 +275,7 @@ mapping=...  // 字段映射JSON字符串
 
 ###  设置自动备份配置
 
-#### 请求
+**请求**
 
 ```http
 PUT /api/v1/backup/auto-config
@@ -275,7 +293,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {

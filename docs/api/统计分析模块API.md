@@ -1,53 +1,75 @@
-# 统计分析模块 API 文档
-
 ##  模块概述
 
 统计分析模块提供多维度的财务数据分析功能，通过图表和报表帮助用户了解财务状况，辅助决策。本模块提供了完整的数据看板、收支分析、类别统计、趋势分析等功能的API接口。
 
 ##  接口清单
 
-| 功能模块 | 接口路径 | 方法 | 功能描述 |
-|---------|---------|------|--------|
-| **数据看板** | `/api/v1/dashboard/summary` | `GET` | 获取财务概览数据 |
-| | `/api/v1/dashboard/quick-stats` | `GET` | 获取快速统计数据 |
-| | `/api/v1/dashboard/recent-transactions` | `GET` | 获取最近收支记录 |
-| | `/api/v1/dashboard/budget-progress` | `GET` | 获取预算执行进度 |
-| **收支分析** | `/api/v1/analysis/income-expense` | `GET` | 获取收支对比分析 |
-| | `/api/v1/analysis/trend` | `GET` | 获取收支趋势分析 |
-| | `/api/v1/analysis/flow` | `GET` | 获取资金流向分析 |
-| **类别报表** | `/api/v1/reports/category` | `GET` | 获取分类统计报表 |
-| | `/api/v1/reports/category/trend` | `GET` | 获取分类趋势报表 |
-| **账户报表** | `/api/v1/reports/account` | `GET` | 获取账户收支报表 |
-| | `/api/v1/reports/account/balance` | `GET` | 获取账户余额报表 |
-| **成员报表** | `/api/v1/reports/member` | `GET` | 获取成员收支报表 |
-| | `/api/v1/reports/member/contribution` | `GET` | 获取成员贡献度分析 |
-| **预算报表** | `/api/v1/reports/budget` | `GET` | 获取预算执行报表 |
-| | `/api/v1/reports/budget/alert` | `GET` | 获取预算超支提醒 |
-| **趋势图表** | `/api/v1/charts/line` | `GET` | 获取折线图数据 |
-| | `/api/v1/charts/pie` | `GET` | 获取饼图数据 |
-| | `/api/v1/charts/bar` | `GET` | 获取柱状图数据 |
-| | `/api/v1/charts/radar` | `GET` | 获取雷达图数据 |
-| **自定义报表** | `/api/v1/reports/custom` | `POST` | 创建自定义报表 |
-| | `/api/v1/reports/custom` | `GET` | 获取自定义报表列表 |
-| | `/api/v1/reports/custom/:id` | `GET` | 获取自定义报表数据 |
-| | `/api/v1/reports/custom/:id` | `PUT` | 更新自定义报表 |
-| | `/api/v1/reports/custom/:id` | `DELETE` | 删除自定义报表 |
-| **报表导出** | `/api/v1/export/excel` | `GET` | 导出Excel报表 |
-| | `/api/v1/export/csv` | `GET` | 导出CSV报表 |
-| | `/api/v1/export/pdf` | `GET` | 导出PDF报表 |
+<!-- tabs:start -->
+<!-- tab:数据看板 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/dashboard/summary`](#获取财务概览数据) | `GET` | 获取财务概览数据 |
+| [`/api/v1/dashboard/quick-stats`](#获取快速统计数据) | `GET` | 获取快速统计数据 |
+| [`/api/v1/dashboard/recent-transactions`](#获取最近收支记录) | `GET` | 获取最近收支记录 |
+| [`/api/v1/dashboard/budget-progress`](#获取预算执行进度) | `GET` | 获取预算执行进度 |
+
+<!-- tab:收支分析 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/analysis/income-expense`](#获取收支对比分析) | `GET` | 获取收支对比分析 |
+| [`/api/v1/analysis/trend`](#获取收支趋势分析) | `GET` | 获取收支趋势分析 |
+| [`/api/v1/analysis/flow`](#获取资金流向分析) | `GET` | 获取资金流向分析 |
+
+<!-- tab:统计报表 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/reports/category`](#获取分类统计报表) | `GET` | 获取分类统计报表 |
+| [`/api/v1/reports/category/trend`](#获取分类趋势报表) | `GET` | 获取分类趋势报表 |
+| [`/api/v1/reports/account`](#获取账户收支报表) | `GET` | 获取账户收支报表 |
+| [`/api/v1/reports/account/balance`](#获取账户余额报表) | `GET` | 获取账户余额报表 |
+| [`/api/v1/reports/member`](#获取成员收支报表) | `GET` | 获取成员收支报表 |
+| [`/api/v1/reports/member/contribution`](#获取成员贡献度分析) | `GET` | 获取成员贡献度分析 |
+| [`/api/v1/reports/budget`](#获取预算执行报表) | `GET` | 获取预算执行报表 |
+| [`/api/v1/reports/budget/alert`](#获取预算超支提醒) | `GET` | 获取预算超支提醒 |
+
+<!-- tab:图表数据 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/charts/line`](#获取折线图数据) | `GET` | 获取折线图数据 |
+| [`/api/v1/charts/pie`](#获取饼图数据) | `GET` | 获取饼图数据 |
+| [`/api/v1/charts/bar`](#获取柱状图数据) | `GET` | 获取柱状图数据 |
+| [`/api/v1/charts/radar`](#获取雷达图数据) | `GET` | 获取雷达图数据 |
+
+<!-- tab:自定义报表 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/reports/custom`](#创建自定义报表) | `POST` | 创建自定义报表 |
+| [`/api/v1/reports/custom`](#获取自定义报表列表) | `GET` | 获取自定义报表列表 |
+| [`/api/v1/reports/custom/:id`](#获取自定义报表数据) | `GET` | 获取自定义报表数据 |
+| [`/api/v1/reports/custom/:id`](#更新自定义报表) | `PUT` | 更新自定义报表 |
+| [`/api/v1/reports/custom/:id`](#删除自定义报表) | `DELETE` | 删除自定义报表 |
+
+<!-- tab:报表导出 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/export/excel`](#导出Excel报表) | `GET` | 导出Excel报表 |
+| [`/api/v1/export/csv`](#导出CSV报表) | `GET` | 导出CSV报表 |
+| [`/api/v1/export/pdf`](#导出PDF报表) | `GET` | 导出PDF报表 |
+
+<!-- tabs:end -->
 
 ##  详细接口说明
 
 ###  获取财务概览数据
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/dashboard/summary?book_id=1&period=month&date=2023-01
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -81,14 +103,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取收支趋势分析
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/analysis/trend?book_id=1&type=both&period=month&start_date=2023-01&end_date=2023-12
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -124,14 +146,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取分类统计报表
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/reports/category?book_id=1&type=expense&period=month&date=2023-01&level=1
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -178,14 +200,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取账户余额报表
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/reports/account/balance?book_id=1&date=2023-01-31
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -235,14 +257,14 @@ Authorization: Bearer jwt_token_string
 
 ###  导出Excel报表
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/export/excel?book_id=1&type=transaction&start_date=2023-01-01&end_date=2023-01-31&format=excel
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 # 成功 - 返回文件流

@@ -1,59 +1,81 @@
-# 系统管理模块 API 文档
-
 ##  模块概述
 
 系统管理模块提供家庭记账系统的核心管理功能，包括用户设置、分类管理、账本管理、系统日志、系统配置和通知管理等。本模块为用户提供个性化设置、分类管理和系统状态监控等基础功能的API接口。
 
 ##  接口清单
 
-| 功能模块 | 接口路径 | 方法 | 功能描述 |
-|---------|---------|------|--------|
-| **用户设置** | `/api/v1/user/settings` | `GET` | 获取用户设置 |
-| | `/api/v1/user/settings` | `PUT` | 更新用户设置 |
-| | `/api/v1/user/profile` | `GET` | 获取用户资料 |
-| | `/api/v1/user/profile` | `PUT` | 更新用户资料 |
-| | `/api/v1/user/avatar` | `POST` | 上传用户头像 |
-| | `/api/v1/user/password` | `PUT` | 修改密码 |
-| **分类管理** | `/api/v1/categories` | `GET` | 获取分类列表 |
-| | `/api/v1/categories` | `POST` | 创建分类 |
-| | `/api/v1/categories/:id` | `PUT` | 更新分类 |
-| | `/api/v1/categories/:id` | `DELETE` | 删除分类 |
-| | `/api/v1/categories/import` | `POST` | 导入分类 |
-| | `/api/v1/categories/export` | `GET` | 导出分类 |
-| **账本管理** | `/api/v1/books` | `GET` | 获取账本列表 |
-| | `/api/v1/books` | `POST` | 创建账本 |
-| | `/api/v1/books/:id` | `GET` | 获取账本详情 |
-| | `/api/v1/books/:id` | `PUT` | 更新账本 |
-| | `/api/v1/books/:id` | `DELETE` | 删除账本 |
-| | `/api/v1/books/:id/switch` | `POST` | 切换当前账本 |
-| **系统日志** | `/api/v1/logs/operation` | `GET` | 获取操作日志 |
-| | `/api/v1/logs/error` | `GET` | 获取错误日志 |
-| | `/api/v1/logs/system` | `GET` | 获取系统日志 |
-| | `/api/v1/logs/user-activity` | `GET` | 获取用户活动日志 |
-| **系统配置** | `/api/v1/system/config` | `GET` | 获取系统配置 |
-| | `/api/v1/system/config` | `PUT` | 更新系统配置 |
-| | `/api/v1/system/info` | `GET` | 获取系统信息 |
-| | `/api/v1/system/check-update` | `GET` | 检查更新 |
-| | `/api/v1/system/version` | `GET` | 获取版本信息 |
-| **通知管理** | `/api/v1/notifications` | `GET` | 获取通知列表 |
-| | `/api/v1/notifications/:id` | `PUT` | 标记通知已读 |
-| | `/api/v1/notifications/read-all` | `PUT` | 标记所有通知已读 |
-| | `/api/v1/notifications/:id` | `DELETE` | 删除通知 |
-| | `/api/v1/notifications/settings` | `GET` | 获取通知设置 |
-| | `/api/v1/notifications/settings` | `PUT` | 更新通知设置 |
+<!-- tabs:start -->
+<!-- tab:用户设置 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/user/settings`](#获取用户设置) | `GET` | 获取用户设置 |
+| [`/api/v1/user/settings`](#更新用户设置) | `PUT` | 更新用户设置 |
+| [`/api/v1/user/profile`](#获取用户资料) | `GET` | 获取用户资料 |
+| [`/api/v1/user/profile`](#更新用户资料) | `PUT` | 更新用户资料 |
+| [`/api/v1/user/avatar`](#上传用户头像) | `POST` | 上传用户头像 |
+| [`/api/v1/user/password`](#修改密码) | `PUT` | 修改密码 |
+
+<!-- tab:分类管理 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/categories`](#获取分类列表) | `GET` | 获取分类列表 |
+| [`/api/v1/categories`](#创建分类) | `POST` | 创建分类 |
+| [`/api/v1/categories/:id`](#更新分类) | `PUT` | 更新分类 |
+| [`/api/v1/categories/:id`](#删除分类) | `DELETE` | 删除分类 |
+| [`/api/v1/categories/import`](#导入分类) | `POST` | 导入分类 |
+| [`/api/v1/categories/export`](#导出分类) | `GET` | 导出分类 |
+
+<!-- tab:账本管理 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/books`](#获取账本列表) | `GET` | 获取账本列表 |
+| [`/api/v1/books`](#创建账本) | `POST` | 创建账本 |
+| [`/api/v1/books/:id`](#获取账本详情) | `GET` | 获取账本详情 |
+| [`/api/v1/books/:id`](#更新账本) | `PUT` | 更新账本 |
+| [`/api/v1/books/:id`](#删除账本) | `DELETE` | 删除账本 |
+| [`/api/v1/books/:id/switch`](#切换当前账本) | `POST` | 切换当前账本 |
+
+<!-- tab:系统日志 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/logs/operation`](#获取操作日志) | `GET` | 获取操作日志 |
+| [`/api/v1/logs/error`](#获取错误日志) | `GET` | 获取错误日志 |
+| [`/api/v1/logs/system`](#获取系统日志) | `GET` | 获取系统日志 |
+| [`/api/v1/logs/user-activity`](#获取用户活动日志) | `GET` | 获取用户活动日志 |
+
+<!-- tab:系统配置 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/system/config`](#获取系统配置) | `GET` | 获取系统配置 |
+| [`/api/v1/system/config`](#更新系统配置) | `PUT` | 更新系统配置 |
+| [`/api/v1/system/info`](#获取系统信息) | `GET` | 获取系统信息 |
+| [`/api/v1/system/check-update`](#检查更新) | `GET` | 检查更新 |
+| [`/api/v1/system/version`](#获取版本信息) | `GET` | 获取版本信息 |
+
+<!-- tab:通知管理 -->
+| 接口路径 | 方法 | 功能描述 |
+|---------|------|--------|
+| [`/api/v1/notifications`](#获取通知列表) | `GET` | 获取通知列表 |
+| [`/api/v1/notifications/:id`](#标记通知已读) | `PUT` | 标记通知已读 |
+| [`/api/v1/notifications/read-all`](#标记所有通知已读) | `PUT` | 标记所有通知已读 |
+| [`/api/v1/notifications/:id`](#删除通知) | `DELETE` | 删除通知 |
+| [`/api/v1/notifications/settings`](#获取通知设置) | `GET` | 获取通知设置 |
+| [`/api/v1/notifications/settings`](#更新通知设置) | `PUT` | 更新通知设置 |
+
+<!-- tabs:end -->
 
 ##  详细接口说明
 
 ###  获取用户设置
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/user/settings
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -84,7 +106,7 @@ Authorization: Bearer jwt_token_string
 
 ###  更新用户设置
 
-#### 请求
+**请求**
 
 ```http
 PUT /api/v1/user/settings
@@ -109,7 +131,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -139,7 +161,7 @@ Authorization: Bearer jwt_token_string
 
 ###  创建分类
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/categories
@@ -159,7 +181,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -184,7 +206,7 @@ Authorization: Bearer jwt_token_string
 
 ###  创建账本
 
-#### 请求
+**请求**
 
 ```http
 POST /api/v1/books
@@ -202,7 +224,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -225,14 +247,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取操作日志
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/logs/operation?book_id=1&start_date=2023-01-01&end_date=2023-01-31&page=1&page_size=20&action_type=create
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -264,14 +286,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取系统信息
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/system/info
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -310,14 +332,14 @@ Authorization: Bearer jwt_token_string
 
 ###  获取通知列表
 
-#### 请求
+**请求**
 
 ```http
 GET /api/v1/notifications?page=1&page_size=20&status=unread
 Authorization: Bearer jwt_token_string
 ```
 
-#### 响应
+**响应**
 
 ```
 {
@@ -442,48 +464,6 @@ Authorization: Bearer jwt_token_string
   "created_at": "2023-01-05T12:30:00Z" // 创建时间
 }
 ```
-
-##  系统管理功能说明
-
-###  用户设置管理
-
-- 支持个性化主题设置（亮色、暗色、跟随系统）
-- 多语言支持和本地化设置
-- 自定义日期时间和货币显示格式
-- 通知偏好设置
-- 同步和数据安全设置
-
-###  分类管理系统
-
-- 支持多层级分类管理
-- 自定义图标和颜色
-- 分类排序和状态管理
-- 导入导出功能
-- 预设系统分类模板
-
-###  账本管理功能
-
-- 多账本支持
-- 账本基本信息管理
-- 默认账本设置
-- 账本切换功能
-- 账本数据统计概览
-
-###  日志和审计功能
-
-- 操作日志记录和查询
-- 用户活动追踪
-- 系统事件监控
-- 错误日志记录
-- 日志搜索和过滤
-
-###  系统配置和监控
-
-- 系统版本和更新管理
-- 数据库状态监控
-- 存储使用情况
-- 服务器资源监控
-- 系统健康检查
 
 ##  错误码说明
 
