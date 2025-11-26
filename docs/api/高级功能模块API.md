@@ -69,6 +69,22 @@
 
 ###  创建预算
 
+**功能描述**：创建新的预算记录
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数 |
+| name | string | 是 | - | 预算名称 | 1-50个字符 |
+| amount | number | 是 | - | 预算金额 | 大于0 |
+| category_ids | array | 否 | [] | 关联的分类IDs | 数组元素为正整数 |
+| period | string | 是 | - | 预算周期 | 枚举值：monthly, yearly, custom |
+| start_date | string | 是 | - | 开始日期 | YYYY-MM-DD格式 |
+| end_date | string | 否 | - | 结束日期 | YYYY-MM-DD格式，仅当period为custom时必填 |
+| notify_threshold | integer | 否 | 80 | 通知阈值（百分比） | 1-100之间的整数 |
+| is_recurring | boolean | 否 | false | 是否循环 | 布尔值 |
+
 **请求**
 
 ```http
@@ -80,18 +96,18 @@ Authorization: Bearer jwt_token_string
   "book_id": 1,
   "name": "月度餐饮预算",
   "amount": 5000,
-  "category_ids": [5, 6],  // 关联的分类IDs
-  "period": "monthly",  // monthly, yearly, custom
+  "category_ids": [5, 6],
+  "period": "monthly",
   "start_date": "2023-01-01",
   "end_date": "2023-01-31",
-  "notify_threshold": 80,  // 百分比，达到此值时通知
+  "notify_threshold": 80,
   "is_recurring": true
 }
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "创建成功",
@@ -111,7 +127,26 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 400,
+  "message": "请求参数错误：预算金额必须大于0",
+  "data": null
+}
+```
+
 ###  获取预算执行状态
+
+**功能描述**：获取指定预算的执行状态
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| id | integer | 是 | - | 预算ID | 正整数 |
+| date | string | 否 | 当前日期 | 查询日期 | YYYY-MM-DD格式 |
 
 **请求**
 
@@ -120,9 +155,9 @@ GET /api/v1/budgets/:id/status?date=2023-01-15
 Authorization: Bearer jwt_token_string
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "获取成功",
@@ -134,7 +169,7 @@ Authorization: Bearer jwt_token_string
     "percentage": 30,
     "is_over_budget": false,
     "daily_average": 100,
-    "trend": "normal",  // normal, warning, critical
+    "trend": "normal",
     "transactions_count": 15,
     "forecast": {
       "estimated_spend": 3000,
@@ -145,7 +180,29 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 404,
+  "message": "预算不存在",
+  "data": null
+}
+```
+
 ###  创建标签
+
+**功能描述**：创建新的标签
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数 |
+| name | string | 是 | - | 标签名称 | 1-30个字符 |
+| color | string | 否 | "#3366FF" | 标签颜色 | 十六进制颜色代码 |
+| icon | string | 否 | "tag" | 标签图标 | 1-20个字符 |
+| description | string | 否 | "" | 标签描述 | 0-100个字符 |
 
 **请求**
 
@@ -163,9 +220,9 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "创建成功",
@@ -182,7 +239,28 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 400,
+  "message": "请求参数错误：标签名称已存在",
+  "data": null
+}
+```
+
 ###  添加共享成员
+
+**功能描述**：邀请成员加入共享账本
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| bookId | integer | 是 | - | 账本ID | 正整数 |
+| email | string | 是 | - | 被邀请人邮箱 | 有效的邮箱格式 |
+| permission | string | 是 | - | 权限级别 | 枚举值：viewer, editor, manager, owner |
+| message | string | 否 | "" | 邀请消息 | 0-200个字符 |
 
 **请求**
 
@@ -193,14 +271,14 @@ Authorization: Bearer jwt_token_string
 
 {
   "email": "family_member@example.com",
-  "permission": "editor",  // viewer, editor, manager, owner
+  "permission": "editor",
   "message": "邀请您加入我们的家庭账本"
 }
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "邀请已发送",
@@ -209,14 +287,45 @@ Authorization: Bearer jwt_token_string
     "book_id": 1,
     "recipient_email": "family_member@example.com",
     "permission": "editor",
-    "status": "pending",  // pending, accepted, declined, expired
+    "status": "pending",
     "expires_at": "2023-01-12T12:30:00Z",
     "created_at": "2023-01-05T12:30:00Z"
   }
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 403,
+  "message": "权限不足：您没有邀请成员的权限",
+  "data": null
+}
+```
+
 ###  创建提醒
+
+**功能描述**：创建新的账单提醒
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数 |
+| title | string | 是 | - | 提醒标题 | 1-50个字符 |
+| amount | number | 是 | - | 提醒金额 | 大于0 |
+| currency | string | 否 | "CNY" | 货币类型 | 有效的货币代码 |
+| type | string | 是 | - | 提醒类型 | 枚举值：income, expense, fixed_income, fixed_expense |
+| recurrence | string | 是 | - | 重复频率 | 枚举值：one_time, weekly, biweekly, monthly, yearly |
+| recurrence_day | integer | 否 | - | 重复日 | 1-31之间的整数，仅当recurrence为monthly时必填 |
+| start_date | string | 是 | - | 开始日期 | YYYY-MM-DD格式 |
+| end_date | string | 否 | - | 结束日期 | YYYY-MM-DD格式，必须大于等于start_date |
+| reminder_days | array | 否 | [1] | 提前提醒天数 | 数组元素为0-30之间的整数 |
+| account_id | integer | 是 | - | 账户ID | 正整数 |
+| category_id | integer | 是 | - | 分类ID | 正整数 |
+| auto_create | boolean | 否 | false | 是否自动创建交易记录 | 布尔值 |
+| is_active | boolean | 否 | true | 是否激活 | 布尔值 |
 
 **请求**
 
@@ -230,22 +339,22 @@ Authorization: Bearer jwt_token_string
   "title": "房贷还款提醒",
   "amount": 8000,
   "currency": "CNY",
-  "type": "fixed_expense",  // income, expense, fixed_income, fixed_expense
-  "recurrence": "monthly",  // one_time, weekly, biweekly, monthly, yearly
-  "recurrence_day": 15,  // 每月15日
+  "type": "fixed_expense",
+  "recurrence": "monthly",
+  "recurrence_day": 15,
   "start_date": "2023-01-15",
   "end_date": "2030-12-15",
-  "reminder_days": [3, 1, 0],  // 提前3天、1天、当天提醒
+  "reminder_days": [3, 1, 0],
   "account_id": 1,
   "category_id": 2,
-  "auto_create": true,  // 是否自动创建交易记录
+  "auto_create": true,
   "is_active": true
 }
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "创建成功",
@@ -270,7 +379,27 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 400,
+  "message": "请求参数错误：结束日期必须大于等于开始日期",
+  "data": null
+}
+```
+
 ###  预测交易分类
+
+**功能描述**：根据交易信息预测分类
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数 |
+| transaction | object | 是 | - | 交易信息 | 包含amount, description, account_id, date, currency字段 |
+| include_probability | boolean | 否 | false | 是否包含概率 | 布尔值 |
 
 **请求**
 
@@ -292,9 +421,9 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "预测成功",
@@ -316,13 +445,34 @@ Authorization: Bearer jwt_token_string
         "probability": 0.05
       }
     ],
-    "confidence_level": "high",  // high, medium, low
+    "confidence_level": "high",
     "model_version": "1.0.0"
   }
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 2005,
+  "message": "智能分类模型错误：模型加载失败",
+  "data": null
+}
+```
+
 ###  货币转换
+
+**功能描述**：进行货币转换
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| amount | number | 是 | - | 转换金额 | 大于0 |
+| from_currency | string | 是 | - | 源货币 | 有效的货币代码 |
+| to_currency | string | 是 | - | 目标货币 | 有效的货币代码 |
+| date | string | 否 | 当前日期 | 汇率日期 | YYYY-MM-DD格式 |
 
 **请求**
 
@@ -335,13 +485,13 @@ Authorization: Bearer jwt_token_string
   "amount": 100,
   "from_currency": "USD",
   "to_currency": "CNY",
-  "date": "2023-01-05"  // 可选，不提供则使用最新汇率
+  "date": "2023-01-05"
 }
 ```
 
-**响应**
+**成功响应**
 
-```
+```json
 {
   "code": 200,
   "message": "转换成功",
@@ -355,6 +505,16 @@ Authorization: Bearer jwt_token_string
     "rate_source": "央行汇率",
     "last_updated": "2023-01-05T08:00:00Z"
   }
+}
+```
+
+**错误响应**
+
+```json
+{
+  "code": 2010,
+  "message": "汇率数据过期：请刷新汇率数据",
+  "data": null
 }
 ```
 
@@ -453,21 +613,46 @@ Authorization: Bearer jwt_token_string
 
 ##  错误码说明
 
-| 错误码 | 描述 |
-|-------|------|
-| 400 | 请求参数错误 |
-| 401 | 未授权，需要登录 |
-| 403 | 权限不足 |
-| 404 | 资源不存在 |
-| 500 | 服务器内部错误 |
-| 2000 | 预算创建失败 |
-| 2001 | 标签创建失败 |
-| 2002 | 共享权限不足 |
-| 2003 | 提醒创建失败 |
-| 2004 | 汇率获取失败 |
-| 2005 | 智能分类模型错误 |
-| 2006 | 预算已过期 |
-| 2007 | 超出预算限额 |
-| 2008 | 邀请已过期 |
-| 2009 | 提醒频率过高 |
-| 2010 | 汇率数据过期 |
+| 错误码 | 描述 | 解决方案建议 |
+|-------|------|--------------|
+| 400 | 请求参数错误 | 检查请求参数是否符合要求，包括类型、格式、必填项等 |
+| 401 | 未授权，需要登录 | 请先登录获取有效的认证令牌 |
+| 403 | 权限不足 | 检查当前用户是否有执行该操作的权限 |
+| 404 | 资源不存在 | 检查请求的资源ID是否正确 |
+| 500 | 服务器内部错误 | 请稍后重试，或联系系统管理员 |
+| 2000 | 预算创建失败 | 检查预算参数是否正确，特别是金额、日期范围等 |
+| 2001 | 标签创建失败 | 检查标签名称是否已存在，或参数格式是否正确 |
+| 2002 | 共享权限不足 | 只有管理员或账本所有者可以邀请成员 |
+| 2003 | 提醒创建失败 | 检查提醒参数是否正确，特别是日期范围、重复规则等 |
+| 2004 | 汇率获取失败 | 检查网络连接，或稍后重试 |
+| 2005 | 智能分类模型错误 | 模型加载或预测失败，请稍后重试 |
+| 2006 | 预算已过期 | 预算周期已结束，无法进行操作 |
+| 2007 | 超出预算限额 | 已超出预算金额，请调整预算或消费 |
+| 2008 | 邀请已过期 | 邀请链接已过期，请重新发送邀请 |
+| 2009 | 提醒频率过高 | 提醒频率设置过高，请调整提醒规则 |
+| 2010 | 汇率数据过期 | 汇率数据已过期，请调用刷新汇率接口更新数据 |
+
+##  API版本控制策略
+
+1. **版本号规则**：采用语义化版本号（Major.Minor.Patch）
+2. **版本升级策略**：
+   - 兼容性功能增加或bug修复，升级Patch版本
+   - 新增非破坏性功能，升级Minor版本
+   - 破坏性变更，升级Major版本
+3. **API废弃规则**：
+   - 废弃的API将在文档中明确标记
+   - 废弃的API将继续支持至少6个月
+   - 废弃的API在响应头中添加`X-API-Deprecated`字段
+4. **迁移指南**：
+   - 对于破坏性变更，将提供详细的迁移指南
+   - 迁移指南包含旧API与新API的映射关系
+   - 迁移指南包含代码示例
+
+##  API使用规范
+
+1. **请求格式**：所有请求必须使用JSON格式
+2. **认证方式**：使用JWT令牌进行认证，令牌放在Authorization头中
+3. **请求频率限制**：每个API有请求频率限制，默认每分钟60次
+4. **错误处理**：客户端应根据错误码进行相应处理
+5. **分页规则**：列表接口支持分页，使用`page`和`page_size`参数
+6. **排序规则**：列表接口支持排序，使用`sort_by`和`sort_order`参数

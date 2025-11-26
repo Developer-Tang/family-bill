@@ -61,6 +61,19 @@
 
 ### 用户注册
 
+**功能描述**：用户注册新账号
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| username | string | 是 | - | 用户名 | 3-20个字符，支持字母、数字、下划线 |
+| email | string | 否 | - | 邮箱 | 有效的邮箱格式，与phone二选一 |
+| phone | string | 否 | - | 手机号 | 11位数字，与email二选一 |
+| password | string | 是 | - | 密码 | 8-20个字符，包含字母、数字和特殊字符 |
+| confirm_password | string | 是 | - | 确认密码 | 与password一致 |
+| verification_code | string | 否 | - | 验证码 | 6位数字，当使用手机号注册时必填 |
+
 **请求**
 
 ```http
@@ -77,10 +90,9 @@ Content-Type: application/json
 }
 ```
 
-**响应**
+**成功响应**
 
-```
-# 成功
+```json
 {
   "code": 200,
   "message": "注册成功",
@@ -92,16 +104,30 @@ Content-Type: application/json
     "token": "jwt_token_string"
   }
 }
+```
 
-# 失败
+**错误响应**
+
+```json
 {
-  "code": 400,
+  "code": 600,
   "message": "注册失败：用户名已存在",
   "data": null
 }
 ```
 
-###  用户登录
+### 用户登录
+
+**功能描述**：用户登录系统
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| account | string | 是 | - | 账号 | 邮箱或手机号 |
+| password | string | 否 | - | 密码 | 8-20个字符，当login_type为password时必填 |
+| login_type | string | 是 | "password" | 登录类型 | 枚举值：password, verification_code, third_party |
+| third_party_info | object | 否 | null | 第三方登录信息 | 当login_type为third_party时必填 |
 
 **请求**
 
@@ -110,17 +136,16 @@ POST /api/v1/users/login
 Content-Type: application/json
 
 {
-  "account": "user@example.com",  // 邮箱或手机号
+  "account": "user@example.com",
   "password": "secure_password",
-  "login_type": "password",  // password, verification_code, third_party
-  "third_party_info": null    // 第三方登录信息，可选
+  "login_type": "password",
+  "third_party_info": null
 }
 ```
 
-**响应**
+**成功响应**
 
-```
-# 成功
+```json
 {
   "code": 200,
   "message": "登录成功",
@@ -132,8 +157,11 @@ Content-Type: application/json
     "expires_in": 7200
   }
 }
+```
 
-# 失败
+**错误响应**
+
+```json
 {
   "code": 401,
   "message": "登录失败：账号或密码错误",
@@ -141,7 +169,17 @@ Content-Type: application/json
 }
 ```
 
-###  家庭组创建
+### 家庭组创建
+
+**功能描述**：创建新的家庭组
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| name | string | 是 | - | 家庭组名称 | 1-20个字符 |
+| description | string | 否 | "" | 家庭组描述 | 0-100个字符 |
+| avatar | string | 否 | "" | 家庭组头像 | base64编码的图片 |
 
 **请求**
 
@@ -153,14 +191,13 @@ Authorization: Bearer jwt_token_string
 {
   "name": "我的家庭",
   "description": "家庭记账群组",
-  "avatar": "base64_encoded_image"  // 可选
+  "avatar": "base64_encoded_image"
 }
 ```
 
-**响应**
+**成功响应**
 
-```
-# 成功
+```json
 {
   "code": 200,
   "message": "创建成功",
@@ -174,7 +211,30 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-###  账本创建
+**错误响应**
+
+```json
+{
+  "code": 400,
+  "message": "创建失败：家庭组名称已存在",
+  "data": null
+}
+```
+
+### 账本创建
+
+**功能描述**：创建新的账本
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| family_id | integer | 是 | - | 家庭组ID | 正整数 |
+| name | string | 是 | - | 账本名称 | 1-20个字符 |
+| description | string | 否 | "" | 账本描述 | 0-100个字符 |
+| currency | string | 否 | "CNY" | 货币类型 | 有效的货币代码 |
+| start_date | string | 是 | - | 开始日期 | YYYY-MM-DD格式 |
+| end_date | string | 否 | null | 结束日期 | YYYY-MM-DD格式，永久账本为null |
 
 **请求**
 
@@ -189,14 +249,13 @@ Authorization: Bearer jwt_token_string
   "description": "记录家庭日常收支",
   "currency": "CNY",
   "start_date": "2023-01-01",
-  "end_date": null  // 永久账本为null
+  "end_date": null
 }
 ```
 
-**响应**
+**成功响应**
 
-```
-# 成功
+```json
 {
   "code": 200,
   "message": "创建成功",
@@ -209,7 +268,28 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
+**错误响应**
+
+```json
+{
+  "code": 403,
+  "message": "创建失败：权限不足",
+  "data": null
+}
+```
+
 ### 设置成员权限
+
+**功能描述**：设置账本成员的权限
+
+**请求参数**
+
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| id | integer | 是 | - | 账本ID | 正整数 |
+| userId | integer | 是 | - | 用户ID | 正整数 |
+| role_id | integer | 是 | - | 角色ID | 1:管理员, 2:记账人, 3:查账人 |
+| permissions | array | 否 | - | 权限列表 | 权限字符串数组，当role_id为自定义角色时必填 |
 
 **请求**
 
@@ -219,7 +299,7 @@ Content-Type: application/json
 Authorization: Bearer jwt_token_string
 
 {
-  "role_id": 2,  // 1:管理员, 2:记账人, 3:查账人
+  "role_id": 2,
   "permissions": [
     "read_transactions",
     "create_transactions",
@@ -229,10 +309,9 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**响应**
+**成功响应**
 
-```javascript
-// 成功
+```json
 {
   "code": 200,
   "message": "权限设置成功",
@@ -243,6 +322,16 @@ Authorization: Bearer jwt_token_string
     "role_name": "记账人",
     "permissions": ["read_transactions", "create_transactions", "update_transactions"]
   }
+}
+```
+
+**错误响应**
+
+```json
+{
+  "code": 403,
+  "message": "权限设置失败：您没有权限修改其他成员的权限",
+  "data": null
 }
 ```
 
@@ -311,16 +400,41 @@ Authorization: Bearer jwt_token_string
 
 ## 错误码说明
 
-| 错误码 | 描述 |
-|-------|------|
-| 400 | 请求参数错误 |
-| 401 | 未授权，需要登录 |
-| 403 | 权限不足 |
-| 404 | 资源不存在 |
-| 500 | 服务器内部错误 |
-| 600 | 用户已存在 |
-| 601 | 用户不存在 |
-| 602 | 密码错误 |
-| 603 | 验证码错误或已过期 |
-| 604 | 家庭组已存在 |
-| 605 | 账本已存在 |
+| 错误码 | 描述 | 解决方案建议 |
+|-------|------|--------------|
+| 400 | 请求参数错误 | 检查请求参数是否符合要求，包括类型、格式、必填项等 |
+| 401 | 未授权，需要登录 | 请先登录获取有效的认证令牌 |
+| 403 | 权限不足 | 检查当前用户是否有执行该操作的权限 |
+| 404 | 资源不存在 | 检查请求的资源ID是否正确 |
+| 500 | 服务器内部错误 | 请稍后重试，或联系系统管理员 |
+| 600 | 用户已存在 | 用户名、邮箱或手机号已被注册，请更换其他账号 |
+| 601 | 用户不存在 | 检查账号是否正确，或先注册账号 |
+| 602 | 密码错误 | 检查密码是否正确，或使用忘记密码功能重置 |
+| 603 | 验证码错误或已过期 | 请获取新的验证码并重新尝试 |
+| 604 | 家庭组已存在 | 家庭组名称已存在，请更换其他名称 |
+| 605 | 账本已存在 | 账本名称已存在，请更换其他名称 |
+
+## API版本控制策略
+
+1. **版本号规则**：采用语义化版本号（Major.Minor.Patch）
+2. **版本升级策略**：
+   - 兼容性功能增加或bug修复，升级Patch版本
+   - 新增非破坏性功能，升级Minor版本
+   - 破坏性变更，升级Major版本
+3. **API废弃规则**：
+   - 废弃的API将在文档中明确标记
+   - 废弃的API将继续支持至少6个月
+   - 废弃的API在响应头中添加`X-API-Deprecated`字段
+4. **迁移指南**：
+   - 对于破坏性变更，将提供详细的迁移指南
+   - 迁移指南包含旧API与新API的映射关系
+   - 迁移指南包含代码示例
+
+## API使用规范
+
+1. **请求格式**：所有请求必须使用JSON格式
+2. **认证方式**：使用JWT令牌进行认证，令牌放在Authorization头中
+3. **请求频率限制**：每个API有请求频率限制，默认每分钟60次
+4. **错误处理**：客户端应根据错误码进行相应处理
+5. **分页规则**：列表接口支持分页，使用`page`和`page_size`参数
+6. **排序规则**：列表接口支持排序，使用`sort_by`和`sort_order`参数
