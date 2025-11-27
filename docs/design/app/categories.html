@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 分类管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .type-tabs {
+            display: flex;
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+        }
+        
+        .type-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .type-tab.active {
+            color: var(--primary-color);
+        }
+        
+        .type-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .category-list {
+            padding: 1rem;
+        }
+        
+        .category-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .category-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: rgba(245, 108, 108, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .category-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .category-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .category-count {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .category-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #F5F7FA;
+            color: var(--text-color);
+        }
+        
+        .add-category-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        
+        .add-category-btn:hover {
+            background-color: #66B1FF;
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">返回</button>
+        <h1 class="header-title">分类管理</h1>
+        <button class="btn-text">排序</button>
+    </div>
+    
+    <div class="type-tabs">
+        <div class="type-tab active" data-type="expense">支出分类</div>
+        <div class="type-tab" data-type="income">收入分类</div>
+    </div>
+    
+    <div class="category-list" id="expenseCategories">
+        <!-- 支出分类 -->
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon">🍚</div>
+                <div class="category-info">
+                    <div class="category-name">餐饮</div>
+                    <div class="category-count">使用 12 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon">🚗</div>
+                <div class="category-info">
+                    <div class="category-name">交通</div>
+                    <div class="category-count">使用 8 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon">🛍️</div>
+                <div class="category-info">
+                    <div class="category-name">购物</div>
+                    <div class="category-count">使用 15 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon">🎬</div>
+                <div class="category-info">
+                    <div class="category-name">娱乐</div>
+                    <div class="category-count">使用 6 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon">💡</div>
+                <div class="category-info">
+                    <div class="category-name">水电</div>
+                    <div class="category-count">使用 3 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="category-list" id="incomeCategories" style="display: none;">
+        <!-- 收入分类 -->
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon" style="background-color: rgba(103, 194, 58, 0.1);">💰</div>
+                <div class="category-info">
+                    <div class="category-name">工资</div>
+                    <div class="category-count">使用 2 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon" style="background-color: rgba(103, 194, 58, 0.1);">🎁</div>
+                <div class="category-info">
+                    <div class="category-name">奖金</div>
+                    <div class="category-count">使用 1 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="category-item">
+            <div class="category-left">
+                <div class="category-icon" style="background-color: rgba(103, 194, 58, 0.1);">💸</div>
+                <div class="category-info">
+                    <div class="category-name">理财</div>
+                    <div class="category-count">使用 3 次</div>
+                </div>
+            </div>
+            <div class="category-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加分类按钮 -->
+    <button class="add-category-btn" title="添加分类">➕</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 类型标签切换
+        document.querySelectorAll('.type-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有标签的活跃状态
+                document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+                // 添加当前标签的活跃状态
+                this.classList.add('active');
+                
+                // 切换分类列表
+                const type = this.dataset.type;
+                if (type === 'expense') {
+                    document.getElementById('expenseCategories').style.display = 'block';
+                    document.getElementById('incomeCategories').style.display = 'none';
+                } else {
+                    document.getElementById('expenseCategories').style.display = 'none';
+                    document.getElementById('incomeCategories').style.display = 'block';
+                }
+            });
+        });
+        
+        // 添加分类按钮点击事件
+        document.querySelector('.add-category-btn').addEventListener('click', function() {
+            alert('添加分类功能开发中');
+        });
+        
+        // 编辑和删除按钮点击事件
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '✏️') {
+                    alert('编辑分类功能开发中');
+                } else if (this.textContent === '🗑️') {
+                    if (confirm('确定要删除这个分类吗？')) {
+                        alert('删除分类功能开发中');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

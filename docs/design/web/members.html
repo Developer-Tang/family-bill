@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 成员管理</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        /* 侧边栏样式 */
+        .sidebar {
+            background-color: white;
+            height: 100vh;
+            width: 16.6667%;
+            border-right: 1px solid #E4E7ED;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo h1 {
+            color: #409EFF;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #606266;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .nav-link.active {
+            color: #409EFF;
+            background-color: #ECF5FF;
+            border-right: 3px solid #409EFF;
+        }
+        /* 顶部导航栏样式 */
+        .top-nav {
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 16.6667%; /* 对应col-md-2的宽度 */
+            z-index: 999;
+        }
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+        .breadcrumb-item {
+            color: #909399;
+        }
+        .breadcrumb-item.active {
+            color: #303133;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+        }
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+        }
+        .menu-toggle {
+            margin-right: 20px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #606266;
+        }
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .user-info {
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        /* 主内容区样式 */
+        .main-content {
+            padding: 20px;
+            margin-top: 60px; /* 为固定导航栏留出空间 */
+        }
+        /* 调整主内容容器的样式 */
+        .content-wrapper {
+            margin-left: 16.6667%; /* 为固定侧边栏留出空间 */
+        }
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        /* 家庭组信息样式 */
+        .family-section {
+            padding: 20px;
+        }
+        .family-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .family-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .family-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #409EFF;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .family-details h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+        .family-details p {
+            margin: 0;
+            color: #909399;
+            font-size: 14px;
+        }
+        /* 成员列表样式 */
+        .members-section {
+            padding: 20px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h3 {
+            font-size: 16px;
+            margin: 0;
+            font-weight: bold;
+        }
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+        }
+        .table {
+            width: 100%;
+        }
+        .table th {
+            font-weight: 500;
+            color: #303133;
+            border-bottom: 2px solid #E4E7ED;
+        }
+        .table td {
+            color: #606266;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        .table tbody tr:hover {
+            background-color: #F5F7FA;
+        }
+        /* 成员头像样式 */
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #F5F7FA;
+            color: #606266;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        /* 角色标签样式 */
+        .role-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .role-admin {
+            background-color: #ECF5FF;
+            color: #409EFF;
+        }
+        .role-member {
+            background-color: #F0F9EB;
+            color: #67C23A;
+        }
+        .role-viewer {
+            background-color: #F5F7FA;
+            color: #909399;
+        }
+        /* 状态标签样式 */
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active {
+            background-color: #F0F9EB;
+            color: #67C23A;
+        }
+        .status-inactive {
+            background-color: #FEF0F0;
+            color: #F56C6C;
+        }
+        /* 操作按钮样式 */
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+        /* 邀请成员样式 */
+        .invite-section {
+            padding: 20px;
+            background-color: #ECF5FF;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .invite-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #409EFF;
+        }
+        .invite-form {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .invite-input {
+            flex: 1;
+            min-width: 200px;
+        }
+        /* 模态框样式 */
+        .modal-content {
+            border-radius: 8px;
+        }
+        /* 表单样式 */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 p-0">
+                <div class="sidebar">
+                    <div class="sidebar-logo">
+                        <h1>墨唐家庭记账</h1>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i> 仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="records.html">
+                                <i class="bi bi-journal-text me-2"></i> 收支记录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="accounts.html">
+                                <i class="bi bi-wallet2 me-2"></i> 账户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="categories.html">
+                                <i class="bi bi-tags me-2"></i> 分类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="statistics.html">
+                                <i class="bi bi-bar-chart-line me-2"></i> 统计分析
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="members.html">
+                                <i class="bi bi-people me-2"></i> 成员管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="settings.html">
+                                <i class="bi bi-gear me-2"></i> 系统设置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content-wrapper">
+                <!-- 顶部导航栏 -->
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <button class="menu-toggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">成员管理</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="user-info">
+                            <i class="bi bi-person-circle me-1"></i> 用户名
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 家庭组信息 -->
+                    <div class="card family-section">
+                        <div class="family-header">
+                            <div class="family-info">
+                                <div class="family-avatar">家</div>
+                                <div class="family-details">
+                                    <h3>我的家庭</h3>
+                                    <p>创建于 2025-01-15 · 共 4 位成员</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-pencil me-1"></i> 编辑家庭信息
+                            </button>
+                        </div>
+                        
+                        <!-- 邀请成员 -->
+                        <div class="invite-section">
+                            <div class="invite-title">邀请家庭成员</div>
+                            <div class="invite-form">
+                                <div class="invite-input">
+                                    <label class="form-label">邮箱/手机号</label>
+                                    <input type="text" class="form-control" placeholder="请输入要邀请的邮箱或手机号">
+                                </div>
+                                <div class="invite-input">
+                                    <label class="form-label">角色</label>
+                                    <select class="form-select">
+                                        <option value="member">普通成员</option>
+                                        <option value="viewer">查看者</option>
+                                    </select>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <button class="btn btn-primary">发送邀请</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 成员列表 -->
+                    <div class="card members-section">
+                        <div class="section-header">
+                            <h3>家庭成员</h3>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>成员</th>
+                                        <th>角色</th>
+                                        <th>状态</th>
+                                        <th>加入时间</th>
+                                        <th>最后活跃</th>
+                                        <th>权限</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 管理员 -->
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div class="member-avatar" style="background-color: #409EFF; color: white;">张</div>
+                                                <div>
+                                                    <div style="font-weight: 500;">张三</div>
+                                                    <div style="font-size: 12px; color: #909399;">zhangsan@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="role-badge role-admin">管理员</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-active">活跃</span>
+                                        </td>
+                                        <td>2025-01-15</td>
+                                        <td>2025-11-27 14:30</td>
+                                        <td>全部权限</td>
+                                        <td>
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editMemberModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" disabled>
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- 普通成员 -->
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div class="member-avatar">李</div>
+                                                <div>
+                                                    <div style="font-weight: 500;">李四</div>
+                                                    <div style="font-size: 12px; color: #909399;">lisi@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="role-badge role-member">普通成员</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-active">活跃</span>
+                                        </td>
+                                        <td>2025-02-20</td>
+                                        <td>2025-11-26 18:45</td>
+                                        <td>记账、查看</td>
+                                        <td>
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editMemberModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- 查看者 -->
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div class="member-avatar">王</div>
+                                                <div>
+                                                    <div style="font-weight: 500;">王五</div>
+                                                    <div style="font-size: 12px; color: #909399;">wangwu@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="role-badge role-viewer">查看者</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-active">活跃</span>
+                                        </td>
+                                        <td>2025-03-10</td>
+                                        <td>2025-11-25 10:20</td>
+                                        <td>仅查看</td>
+                                        <td>
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editMemberModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- 待确认成员 -->
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div class="member-avatar" style="background-color: #DCDFE6; color: #909399;">赵</div>
+                                                <div>
+                                                    <div style="font-weight: 500;">赵六</div>
+                                                    <div style="font-size: 12px; color: #909399;">zhaoliu@example.com</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="role-badge role-member">普通成员</span>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-inactive">待确认</span>
+                                        </td>
+                                        <td>2025-11-27</td>
+                                        <td>-</td>
+                                        <td>记账、查看</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-send"></i> 重新发送邀请
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑成员模态框 -->
+    <div class="modal fade" id="editMemberModal" tabindex="-1" aria-labelledby="editMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMemberModalLabel">编辑成员</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">成员姓名</label>
+                                <input type="text" class="form-control" value="李四">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">角色</label>
+                                <select class="form-select">
+                                    <option value="admin">管理员</option>
+                                    <option value="member" selected>普通成员</option>
+                                    <option value="viewer">查看者</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">权限设置</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label">查看收支记录</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label">添加收支记录</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" checked>
+                                    <label class="form-check-label">编辑收支记录</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                    <label class="form-check-label">管理账户</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                    <label class="form-check-label">管理分类</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox">
+                                    <label class="form-check-label">管理成员</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

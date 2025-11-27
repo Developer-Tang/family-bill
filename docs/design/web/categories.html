@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 分类管理</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        /* 侧边栏样式 */
+        .sidebar {
+            background-color: white;
+            height: 100vh;
+            width: 16.6667%;
+            border-right: 1px solid #E4E7ED;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo h1 {
+            color: #409EFF;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #606266;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .nav-link.active {
+            color: #409EFF;
+            background-color: #ECF5FF;
+            border-right: 3px solid #409EFF;
+        }
+        /* 顶部导航栏样式 */
+        .top-nav {
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 16.6667%; /* 对应col-md-2的宽度 */
+            z-index: 999;
+        }
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+        .breadcrumb-item {
+            color: #909399;
+        }
+        .breadcrumb-item.active {
+            color: #303133;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+        }
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+        }
+        .menu-toggle {
+            margin-right: 20px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #606266;
+        }
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .user-info {
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        /* 主内容区样式 */
+        .main-content {
+            padding: 20px;
+            margin-top: 60px; /* 为固定导航栏留出空间 */
+        }
+        /* 调整主内容容器的样式 */
+        .content-wrapper {
+            margin-left: 16.6667%; /* 为固定侧边栏留出空间 */
+        }
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        /* 分类管理样式 */
+        .categories-section {
+            padding: 20px;
+        }
+        /* 分类类型切换 */
+        .type-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #DCDFE6;
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            color: #606266;
+        }
+        .type-btn.active {
+            background-color: #ECF5FF;
+            border-color: #409EFF;
+            color: #409EFF;
+        }
+        /* 分类树样式 */
+        .tree-container {
+            margin-bottom: 20px;
+        }
+        .tree-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .tree-header h3 {
+            font-size: 16px;
+            margin: 0;
+            font-weight: bold;
+        }
+        /* 分类树节点 */
+        .category-tree {
+            list-style: none;
+            padding-left: 0;
+        }
+        .category-node {
+            margin-bottom: 10px;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border: 1px solid #E4E7ED;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .category-item:hover {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .category-item.active {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .category-icon {
+            font-size: 18px;
+            color: #409EFF;
+        }
+        .category-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .category-count {
+            font-size: 12px;
+            color: #909399;
+            background-color: #F5F7FA;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .category-actions {
+            display: flex;
+            gap: 5px;
+        }
+        /* 子分类样式 */
+        .subcategories {
+            list-style: none;
+            padding-left: 30px;
+            margin-top: 10px;
+        }
+        .subcategory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid #E4E7ED;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .subcategory-item:hover {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        /* 表单样式 */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        /* 图标选择器 */
+        .icon-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #E4E7ED;
+            border-radius: 4px;
+        }
+        .icon-item {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #E4E7ED;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        .icon-item:hover {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .icon-item.active {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+            color: #409EFF;
+        }
+        /* 模态框样式 */
+        .modal-content {
+            border-radius: 8px;
+        }
+        /* 操作按钮样式 */
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 p-0">
+                <div class="sidebar">
+                    <div class="sidebar-logo">
+                        <h1>墨唐家庭记账</h1>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i> 仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="records.html">
+                                <i class="bi bi-journal-text me-2"></i> 收支记录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="accounts.html">
+                                <i class="bi bi-wallet2 me-2"></i> 账户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="categories.html">
+                                <i class="bi bi-tags me-2"></i> 分类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="statistics.html">
+                                <i class="bi bi-bar-chart-line me-2"></i> 统计分析
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="members.html">
+                                <i class="bi bi-people me-2"></i> 成员管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="settings.html">
+                                <i class="bi bi-gear me-2"></i> 系统设置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content-wrapper">
+                <!-- 顶部导航栏 -->
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <button class="menu-toggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">分类管理</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="user-info">
+                            <i class="bi bi-person-circle me-1"></i> 用户名
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 分类管理卡片 -->
+                    <div class="card categories-section">
+                        <!-- 分类类型切换 -->
+                        <div class="type-switch">
+                            <button class="type-btn active" data-type="expense">
+                                <i class="bi bi-arrow-down me-1"></i> 支出分类
+                            </button>
+                            <button class="type-btn" data-type="income">
+                                <i class="bi bi-arrow-up me-1"></i> 收入分类
+                            </button>
+                        </div>
+                        
+                        <!-- 分类树 -->
+                        <div class="tree-container">
+                            <div class="tree-header">
+                                <h3>分类列表</h3>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                    <i class="bi bi-plus me-1"></i> 新增分类
+                                </button>
+                            </div>
+                            
+                            <!-- 支出分类树 -->
+                            <ul class="category-tree" id="expenseCategories">
+                                <!-- 餐饮分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-utensils category-icon"></i>
+                                            <span class="category-name">餐饮</span>
+                                            <span class="category-count">25</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- 子分类 -->
+                                    <ul class="subcategories">
+                                        <li class="subcategory-item">
+                                            <div class="category-info">
+                                                <i class="bi bi-cup-hot category-icon"></i>
+                                                <span class="category-name">早餐</span>
+                                                <span class="category-count">8</span>
+                                            </div>
+                                            <div class="category-actions">
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <li class="subcategory-item">
+                                            <div class="category-info">
+                                                <i class="bi bi-egg-fried category-icon"></i>
+                                                <span class="category-name">午餐</span>
+                                                <span class="category-count">10</span>
+                                            </div>
+                                            <div class="category-actions">
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <li class="subcategory-item">
+                                            <div class="category-info">
+                                                <i class="bi bi-moon-stars category-icon"></i>
+                                                <span class="category-name">晚餐</span>
+                                                <span class="category-count">7</span>
+                                            </div>
+                                            <div class="category-actions">
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                                
+                                <!-- 购物分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-shop category-icon"></i>
+                                            <span class="category-name">购物</span>
+                                            <span class="category-count">18</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- 子分类 -->
+                                    <ul class="subcategories">
+                                        <li class="subcategory-item">
+                                            <div class="category-info">
+                                                <i class="bi bi-tshirt category-icon"></i>
+                                                <span class="category-name">服装</span>
+                                                <span class="category-count">6</span>
+                                            </div>
+                                            <div class="category-actions">
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <li class="subcategory-item">
+                                            <div class="category-info">
+                                                <i class="bi bi-phone category-icon"></i>
+                                                <span class="category-name">数码</span>
+                                                <span class="category-count">4</span>
+                                            </div>
+                                            <div class="category-actions">
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <li class="subcategory-item">
+                                            <div class="category-info">
+                                                <i class="bi bi-house category-icon"></i>
+                                                <span class="category-name">家居</span>
+                                                <span class="category-count">8</span>
+                                            </div>
+                                            <div class="category-actions">
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                                
+                                <!-- 交通分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-car-front category-icon"></i>
+                                            <span class="category-name">交通</span>
+                                            <span class="category-count">12</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                <!-- 住房分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-house category-icon"></i>
+                                            <span class="category-name">住房</span>
+                                            <span class="category-count">8</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                <!-- 娱乐分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-film category-icon"></i>
+                                            <span class="category-name">娱乐</span>
+                                            <span class="category-count">15</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            
+                            <!-- 收入分类树 (默认隐藏) -->
+                            <ul class="category-tree" id="incomeCategories" style="display: none;">
+                                <!-- 工资分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-bank category-icon"></i>
+                                            <span class="category-name">工资</span>
+                                            <span class="category-count">5</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                <!-- 奖金分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-trophy category-icon"></i>
+                                            <span class="category-name">奖金</span>
+                                            <span class="category-count">2</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                                
+                                <!-- 投资分类 -->
+                                <li class="category-node">
+                                    <div class="category-item">
+                                        <div class="category-info">
+                                            <i class="bi bi-graph-up category-icon"></i>
+                                            <span class="category-name">投资</span>
+                                            <span class="category-count">3</span>
+                                        </div>
+                                        <div class="category-actions">
+                                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增分类模态框 -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">新增分类</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">分类名称</label>
+                            <input type="text" class="form-control" placeholder="请输入分类名称">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">分类类型</label>
+                            <select class="form-select">
+                                <option value="expense">支出</option>
+                                <option value="income">收入</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">分类图标</label>
+                            <div class="icon-selector">
+                                <div class="icon-item active"><i class="bi bi-utensils"></i></div>
+                                <div class="icon-item"><i class="bi bi-shop"></i></div>
+                                <div class="icon-item"><i class="bi bi-car-front"></i></div>
+                                <div class="icon-item"><i class="bi bi-house"></i></div>
+                                <div class="icon-item"><i class="bi bi-film"></i></div>
+                                <div class="icon-item"><i class="bi bi-book"></i></div>
+                                <div class="icon-item"><i class="bi bi-heart-pulse"></i></div>
+                                <div class="icon-item"><i class="bi bi-bank"></i></div>
+                                <div class="icon-item"><i class="bi bi-trophy"></i></div>
+                                <div class="icon-item"><i class="bi bi-graph-up"></i></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-control" rows="2" placeholder="添加备注信息"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑分类模态框 -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCategoryModalLabel">编辑分类</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">分类名称</label>
+                            <input type="text" class="form-control" value="餐饮">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">分类类型</label>
+                            <select class="form-select">
+                                <option value="expense" selected>支出</option>
+                                <option value="income">收入</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">分类图标</label>
+                            <div class="icon-selector">
+                                <div class="icon-item active"><i class="bi bi-utensils"></i></div>
+                                <div class="icon-item"><i class="bi bi-shop"></i></div>
+                                <div class="icon-item"><i class="bi bi-car-front"></i></div>
+                                <div class="icon-item"><i class="bi bi-house"></i></div>
+                                <div class="icon-item"><i class="bi bi-film"></i></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-control" rows="2">日常餐饮支出</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增子分类模态框 -->
+    <div class="modal fade" id="addSubcategoryModal" tabindex="-1" aria-labelledby="addSubcategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSubcategoryModalLabel">新增子分类</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">子分类名称</label>
+                            <input type="text" class="form-control" placeholder="请输入子分类名称">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">所属分类</label>
+                            <select class="form-select">
+                                <option value="food" selected>餐饮</option>
+                                <option value="shopping">购物</option>
+                                <option value="transport">交通</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">分类图标</label>
+                            <div class="icon-selector">
+                                <div class="icon-item active"><i class="bi bi-cup-hot"></i></div>
+                                <div class="icon-item"><i class="bi bi-egg-fried"></i></div>
+                                <div class="icon-item"><i class="bi bi-utensils"></i></div>
+                                <div class="icon-item"><i class="bi bi-cake"></i></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 自定义脚本 -->
+    <script>
+        // 分类类型切换
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前active类
+                this.classList.add('active');
+                
+                const type = this.dataset.type;
+                
+                // 显示对应的分类树
+                if (type === 'expense') {
+                    document.getElementById('expenseCategories').style.display = 'block';
+                    document.getElementById('incomeCategories').style.display = 'none';
+                } else {
+                    document.getElementById('expenseCategories').style.display = 'none';
+                    document.getElementById('incomeCategories').style.display = 'block';
+                }
+            });
+        });
+        
+        // 图标选择
+        document.querySelectorAll('.icon-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active类
+                this.parentElement.querySelectorAll('.icon-item').forEach(i => i.classList.remove('active'));
+                // 添加当前active类
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

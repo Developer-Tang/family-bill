@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 我的</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .user-card {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.3rem 0;
+        }
+        
+        .user-id {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin: 0;
+        }
+        
+        .arrow-right {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+        
+        .menu-section {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background-color: #F5F7FA;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .menu-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .menu-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .menu-text {
+            font-size: 1rem;
+        }
+        
+        .menu-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .menu-badge {
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+        }
+        
+        .menu-arrow {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .logout-btn {
+            width: calc(100% - 2rem);
+            margin: 1rem;
+            padding: 1rem;
+            background-color: white;
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .version-info {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            margin: 1rem 0 2rem 0;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        /* 功能图标颜色 */
+        .icon-account { color: #409EFF; }
+        .icon-category { color: #67C23A; }
+        .icon-member { color: #E6A23C; }
+        .icon-budget { color: #F56C6C; }
+        .icon-backup { color: #909399; }
+        .icon-setting { color: #C0C4CC; }
+        .icon-help { color: #722ED1; }
+        .icon-about { color: #FA8C16; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div></div>
+        <h1 class="header-title">我的</h1>
+        <button class="btn-text">设置</button>
+    </div>
+    
+    <!-- 用户信息卡片 -->
+    <div class="user-card">
+        <div class="avatar">U</div>
+        <div class="user-info">
+            <h2 class="user-name">用户名</h2>
+            <p class="user-id">ID: 12345678</p>
+        </div>
+        <div class="arrow-right">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+            </svg>
+        </div>
+    </div>
+    
+    <!-- 功能菜单 -->
+    <div class="menu-section">
+        <a href="accounts.html" class="menu-item" style="text-decoration: none; color: inherit;">
+            <div class="menu-left">
+                <div class="menu-icon icon-account">🏦</div>
+                <div class="menu-text">账户管理</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+        
+        <a href="categories.html" class="menu-item" style="text-decoration: none; color: inherit;">
+            <div class="menu-left">
+                <div class="menu-icon icon-category">📁</div>
+                <div class="menu-text">分类管理</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+        
+        <a href="members.html" class="menu-item" style="text-decoration: none; color: inherit;">
+            <div class="menu-left">
+                <div class="menu-icon icon-member">👥</div>
+                <div class="menu-text">成员管理</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-badge">3</div>
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+        
+        <a href="budget.html" class="menu-item" style="text-decoration: none; color: inherit;">
+            <div class="menu-left">
+                <div class="menu-icon icon-budget">💰</div>
+                <div class="menu-text">预算管理</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="menu-section">
+        <a href="backup.html" class="menu-item" style="text-decoration: none; color: inherit;">
+            <div class="menu-left">
+                <div class="menu-icon icon-backup">💾</div>
+                <div class="menu-text">数据备份</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+        
+        <a href="settings.html" class="menu-item" style="text-decoration: none; color: inherit;">
+            <div class="menu-left">
+                <div class="menu-icon icon-setting">⚙️</div>
+                <div class="menu-text">系统设置</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="menu-section">
+        <div class="menu-item">
+            <div class="menu-left">
+                <div class="menu-icon icon-help">❓</div>
+                <div class="menu-text">帮助中心</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-item">
+            <div class="menu-left">
+                <div class="menu-icon icon-about">ℹ️</div>
+                <div class="menu-text">关于我们</div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 退出登录按钮 -->
+    <button class="logout-btn">退出登录</button>
+    
+    <!-- 版本信息 -->
+    <div class="version-info">版本 v1.0.0</div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-text">首页</div>
+        </a>
+        <a href="add-record.html" class="nav-item">
+            <div class="nav-icon">➕</div>
+            <div class="nav-text">记账</div>
+        </a>
+        <a href="statistics.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div class="nav-text">统计</div>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <div class="nav-icon">👤</div>
+            <div class="nav-text">我的</div>
+        </a>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 菜单点击事件
+        // document.querySelectorAll('.menu-item').forEach(item => {
+        //     item.addEventListener('click', function() {
+        //         // 模拟菜单点击效果
+        //         const menuText = this.querySelector('.menu-text').textContent;
+        //         alert(`进入${menuText}页面`);
+        //     });
+        // });
+        
+        // 用户卡片点击事件
+        document.querySelector('.user-card').addEventListener('click', function() {
+            alert('进入个人信息页面');
+        });
+        
+        // 退出登录按钮点击事件
+        document.querySelector('.logout-btn').addEventListener('click', function() {
+            if (confirm('确定要退出登录吗？')) {
+                alert('退出登录成功');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 收支记录</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        /* 顶部导航栏 */
+        .app-header {
+            background-color: #409EFF;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-header h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .header-actions button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        /* 筛选栏 */
+        .filter-section {
+            background-color: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #F5F7FA;
+            color: #606266;
+            border: none;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .filter-tab.active {
+            background-color: #ECF5FF;
+            color: #409EFF;
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 120px;
+        }
+        .filter-item select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #DCDFE6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .filter-actions button {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        /* 记录列表 */
+        .records-section {
+            background-color: white;
+            margin-bottom: 70px; /* 为底部导航栏留出空间 */
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        .record-item:last-child {
+            border-bottom: none;
+        }
+        .record-info {
+            display: flex;
+            align-items: center;
+        }
+        .record-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        .record-icon.income {
+            background-color: #F0F9EB;
+            color: #67C23A;
+        }
+        .record-icon.expense {
+            background-color: #FEF0F0;
+            color: #F56C6C;
+        }
+        .record-icon.transfer {
+            background-color: #ECF5FF;
+            color: #409EFF;
+        }
+        .record-details h5 {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0 0 5px 0;
+            color: #303133;
+        }
+        .record-details p {
+            font-size: 12px;
+            margin: 0;
+            color: #909399;
+        }
+        .record-amount {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .record-amount.income {
+            color: #67C23A;
+        }
+        .record-amount.expense {
+            color: #F56C6C;
+        }
+        .record-amount.transfer {
+            color: #409EFF;
+        }
+        /* 底部导航栏 */
+        .app-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #909399;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .nav-item.active {
+            color: #409EFF;
+        }
+        .nav-item i {
+            font-size: 20px;
+        }
+        /* 适配不同屏幕尺寸 */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 480px;
+                margin: 0 auto;
+                background-color: white;
+                min-height: 100vh;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <div class="app-header">
+            <h1>收支记录</h1>
+            <div class="header-actions">
+                <button title="筛选">
+                    <i class="bi bi-funnel"></i>
+                </button>
+                <button title="搜索">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 筛选栏 -->
+        <div class="filter-section">
+            <div class="filter-tabs">
+                <button class="filter-tab active">全部</button>
+                <button class="filter-tab">收入</button>
+                <button class="filter-tab">支出</button>
+                <button class="filter-tab">转账</button>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item">
+                    <select>
+                        <option>本月</option>
+                        <option>上月</option>
+                        <option>最近3个月</option>
+                        <option>自定义</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <select>
+                        <option>全部分类</option>
+                        <option>餐饮</option>
+                        <option>购物</option>
+                        <option>交通</option>
+                        <option>住房</option>
+                        <option>娱乐</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item">
+                    <select>
+                        <option>全部账户</option>
+                        <option>现金</option>
+                        <option>支付宝</option>
+                        <option>微信</option>
+                        <option>银行卡</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <select>
+                        <option>全部成员</option>
+                        <option>我</option>
+                        <option>家庭成员1</option>
+                        <option>家庭成员2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button style="background-color: #F5F7FA; color: #606266; border: 1px solid #DCDFE6;">重置</button>
+                <button style="background-color: #409EFF; color: white; border: none;">确定</button>
+            </div>
+        </div>
+        
+        <!-- 记录列表 -->
+        <div class="records-section">
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon expense">
+                        <i class="bi bi-utensils"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>餐饮</h5>
+                        <p>2025-11-27 12:30 | 午餐</p>
+                    </div>
+                </div>
+                <div class="record-amount expense">-¥88.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon expense">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>购物</h5>
+                        <p>2025-11-27 10:15 | 生活用品</p>
+                    </div>
+                </div>
+                <div class="record-amount expense">-¥235.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon income">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>工资</h5>
+                        <p>2025-11-26 18:00 | 11月工资</p>
+                    </div>
+                </div>
+                <div class="record-amount income">+¥12,500.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon expense">
+                        <i class="bi bi-house"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>住房</h5>
+                        <p>2025-11-25 09:00 | 12月房租</p>
+                    </div>
+                </div>
+                <div class="record-amount expense">-¥3,500.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon expense">
+                        <i class="bi bi-car-front"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>交通</h5>
+                        <p>2025-11-24 17:30 | 地铁</p>
+                    </div>
+                </div>
+                <div class="record-amount expense">-¥45.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon expense">
+                        <i class="bi bi-film"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>娱乐</h5>
+                        <p>2025-11-23 19:00 | 电影票</p>
+                    </div>
+                </div>
+                <div class="record-amount expense">-¥120.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon income">
+                        <i class="bi bi-gift"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>奖金</h5>
+                        <p>2025-11-22 10:00 | 季度奖金</p>
+                    </div>
+                </div>
+                <div class="record-amount income">+¥2,000.00</div>
+            </div>
+            <div class="record-item" onclick="location.href='record-detail.html'">
+                <div class="record-info">
+                    <div class="record-icon transfer">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div class="record-details">
+                        <h5>转账</h5>
+                        <p>2025-11-21 15:30 | 支付宝 → 银行卡</p>
+                    </div>
+                </div>
+                <div class="record-amount transfer">¥500.00</div>
+            </div>
+        </div>
+        
+        <!-- 底部导航栏 -->
+        <div class="app-footer">
+            <a href="index.html" class="nav-item">
+                <i class="bi bi-house-door"></i>
+                <span>首页</span>
+            </a>
+            <a href="add-record.html" class="nav-item">
+                <i class="bi bi-plus-circle"></i>
+                <span>记账</span>
+            </a>
+            <a href="statistics.html" class="nav-item">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>统计</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="bi bi-person"></i>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

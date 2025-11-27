@@ -1,8 +1,26 @@
-##  模块概述
+## 模块概述
 
 收支记录模块是系统的核心功能，负责记录用户的日常收支活动，支持多种记账方式和记录类型。本模块提供了完整的收支记录管理、快速记账、周期记账、批量记账等功能的API接口。
 
-##  接口清单
+### 设计原则
+
+1. **RESTful规范**：所有API接口严格遵循RESTful设计规范，使用标准HTTP方法和资源导向的URL路径
+2. **本地缓存优先**：暂不集成远程缓存机制，如需使用缓存功能，严格限定为本地缓存方案
+3. **完整的请求验证**：所有API接口包含严格的请求参数验证，确保数据完整性和安全性
+4. **统一的错误处理**：采用统一的错误响应格式和错误码体系，便于客户端处理
+5. **清晰的响应格式**：所有API响应采用标准JSON格式，包含明确的数据结构和状态信息
+6. **可扩展性**：API设计考虑未来功能扩展，预留合理的扩展点
+
+### 适用场景
+
+- 用户需要记录日常收支活动
+- 用户需要快速记账功能，提高记账效率
+- 用户需要设置周期记账，自动记录固定支出
+- 用户需要批量导入外部账单
+- 用户需要管理收支记录的标签
+- 用户需要在离线状态下记账，后续同步
+
+## 接口清单
 
 <!-- tabs:start -->
 <!-- tab:基础记账 -->
@@ -57,12 +75,45 @@
 
 <!-- tabs:end -->
 
-##  详细接口说明
+## 详细接口说明
 
-###  创建收支记录
+### 创建收支记录
 
-**请求**
+**功能描述**：创建新的收支记录，支持支出和收入两种类型
 
+**请求方法**：POST
+**URL路径**：/api/v1/transactions
+**权限要求**：账本成员
+**限流策略**：每分钟60次
+
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**请求参数**
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数，账本必须存在且用户有访问权限 |
+| type | string | 是 | - | 交易类型 | 枚举值：expense（支出）, income（收入） |
+| amount | number | 是 | - | 交易金额 | 大于0，最多两位小数 |
+| currency | string | 否 | "CNY" | 货币类型 | 有效的货币代码 |
+| account_id | integer | 是 | - | 账户ID | 正整数，账户必须存在且属于该账本 |
+| category_id | integer | 是 | - | 分类ID | 正整数，分类必须存在且属于该账本 |
+| subcategory_id | integer | 否 | null | 子分类ID | 正整数或null，子分类必须存在且属于该分类 |
+| date | string | 是 | - | 交易日期 | YYYY-MM-DD格式 |
+| time | string | 否 | "00:00" | 交易时间 | HH:MM格式 |
+| memo | string | 否 | "" | 交易备注 | 0-200个字符 |
+| tags | array | 否 | [] | 标签ID列表 | 数组元素为正整数，标签必须存在且属于该账本 |
+| member_id | integer | 否 | - | 记账成员ID | 正整数，成员必须存在且属于该账本 |
+| attachments | array | 否 | [] | 附件列表 | 数组元素为base64编码的图片数据 |
+| location | object | 否 | null | 地理位置信息 | 包含latitude, longitude, address字段 |
+| location.latitude | number | 否 | - | 纬度 | -90到90之间的数值 |
+| location.longitude | number | 否 | - | 经度 | -180到180之间的数值 |
+| location.address | string | 否 | - | 详细地址 | 0-200个字符 |
+
+**请求示例**
 ```http
 POST /api/v1/transactions
 Content-Type: application/json
@@ -70,7 +121,7 @@ Authorization: Bearer jwt_token_string
 
 {
   "book_id": 1,
-  "type": "expense",  // expense 支出, income 收入
+  "type": "expense",
   "amount": 100.50,
   "currency": "CNY",
   "account_id": 1,
@@ -90,10 +141,22 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| transaction_id | integer | 交易记录ID |
+| type | string | 交易类型 |
+| amount | number | 交易金额 |
+| currency | string | 货币类型 |
+| account_name | string | 账户名称 |
+| category_name | string | 分类名称 |
+| date | string | 交易日期 |
+| time | string | 交易时间 |
+| memo | string | 交易备注 |
+| created_at | string | 创建时间 |
 
-```
-# 成功
+**成功响应**
+```json
 {
   "code": 200,
   "message": "记账成功",
@@ -112,18 +175,76 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-###  获取收支记录列表
+**错误响应**
+| 错误码 | 描述 | 解决方案建议 |
+|-------|------|--------------|
+| 400 | 请求参数错误 | 检查请求参数是否符合要求，包括类型、格式、必填项等 |
+| 401 | 未授权，需要登录 | 请先登录获取有效的认证令牌 |
+| 403 | 权限不足 | 检查当前用户是否有创建收支记录的权限 |
+| 404 | 账本不存在 | 检查book_id是否正确 |
+| 404 | 账户不存在 | 检查account_id是否正确 |
+| 404 | 分类不存在 | 检查category_id是否正确 |
+| 800 | 账户余额不足 | 检查账户余额是否足够 |
+| 801 | 无效的交易类型 | 检查type参数是否为有效值 |
+| 802 | 无效的日期格式 | 检查date参数格式是否为YYYY-MM-DD |
 
-**请求**
+**本地缓存策略**：创建成功后，本地缓存该收支记录，缓存时间24小时
 
+### 获取收支记录列表
+
+**功能描述**：获取指定条件的收支记录列表，支持分页和多条件筛选
+
+**请求方法**：GET
+**URL路径**：/api/v1/transactions
+**权限要求**：账本成员
+**限流策略**：每分钟60次
+
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**查询参数**
+| 参数名 | 类型 | 必填 | 默认值 | 描述 |
+|--------|------|------|--------|------|
+| book_id | integer | 是 | - | 账本ID |
+| type | string | 否 | - | 交易类型：expense（支出）, income（收入） |
+| start_date | string | 否 | - | 开始日期，格式：YYYY-MM-DD |
+| end_date | string | 否 | - | 结束日期，格式：YYYY-MM-DD |
+| category_id | integer | 否 | - | 分类ID |
+| page | integer | 否 | 1 | 页码 |
+| limit | integer | 否 | 20 | 每页数量 |
+
+**请求示例**
 ```http
 GET /api/v1/transactions?book_id=1&type=expense&start_date=2023-01-01&end_date=2023-01-31&category_id=5&page=1&limit=20
 Authorization: Bearer jwt_token_string
 ```
 
-**响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 收支记录列表数据 |
+| data.total | integer | 总记录数 |
+| data.items | array | 收支记录列表 |
+| data.items[].transaction_id | integer | 交易ID |
+| data.items[].type | string | 交易类型 |
+| data.items[].amount | number | 交易金额 |
+| data.items[].currency | string | 货币类型 |
+| data.items[].account_id | integer | 账户ID |
+| data.items[].account_name | string | 账户名称 |
+| data.items[].category_id | integer | 分类ID |
+| data.items[].category_name | string | 分类名称 |
+| data.items[].date | string | 交易日期 |
+| data.items[].memo | string | 交易备注 |
+| data.items[].tags | array | 标签列表 |
+| data.items[].is_locked | boolean | 是否锁定 |
+| data.items[].created_at | string | 创建时间 |
 
-```
+**成功响应示例**
+```json
 {
   "code": 200,
   "message": "获取成功",
@@ -165,10 +286,42 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-###  创建周期记账
+### 创建周期记账
 
-**请求**
+**功能描述**：创建新的周期记账记录，用于自动生成定期收支记录
 
+**请求方法**：POST
+**URL路径**：/api/v1/recurring-transactions
+**权限要求**：账本成员
+**限流策略**：每分钟60次
+
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**请求参数**
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数，账本必须存在且用户有访问权限 |
+| type | string | 是 | - | 交易类型 | 枚举值：expense（支出）, income（收入） |
+| amount | number | 是 | - | 交易金额 | 大于0，最多两位小数 |
+| currency | string | 否 | "CNY" | 货币类型 | 有效的货币代码 |
+| account_id | integer | 是 | - | 账户ID | 正整数，账户必须存在且属于该账本 |
+| category_id | integer | 是 | - | 分类ID | 正整数，分类必须存在且属于该账本 |
+| name | string | 是 | - | 周期记账名称 | 1-50个字符 |
+| frequency | string | 是 | - | 频率 | 枚举值：daily, weekly, monthly, yearly |
+| interval | integer | 否 | 1 | 间隔 | 正整数 |
+| start_date | string | 是 | - | 开始日期 | YYYY-MM-DD格式 |
+| end_date | string | 否 | null | 结束日期 | YYYY-MM-DD格式，永久周期为null |
+| next_date | string | 是 | - | 下次执行日期 | YYYY-MM-DD格式 |
+| memo | string | 否 | "" | 交易备注 | 0-200个字符 |
+| tags | array | 否 | [] | 标签ID列表 | 数组元素为正整数 |
+| auto_create | boolean | 否 | true | 是否自动创建记录 | 布尔值 |
+| notify_before_days | integer | 否 | 0 | 提前通知天数 | 非负整数 |
+
+**请求示例**
 ```http
 POST /api/v1/recurring-transactions
 Content-Type: application/json
@@ -194,10 +347,23 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 周期记账创建结果 |
+| data.recurring_id | integer | 周期记账ID |
+| data.name | string | 周期记账名称 |
+| data.type | string | 交易类型 |
+| data.amount | number | 交易金额 |
+| data.frequency | string | 频率 |
+| data.interval | integer | 间隔 |
+| data.next_date | string | 下次执行日期 |
+| data.status | string | 状态 |
 
-```
-# 成功
+**成功响应示例**
+```json
 {
   "code": 200,
   "message": "创建成功",
@@ -214,10 +380,36 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-###  批量创建收支记录
+### 批量创建收支记录
 
-**请求**
+**功能描述**：批量创建多条收支记录，提高记账效率
 
+**请求方法**：POST
+**URL路径**：/api/v1/transactions/batch
+**权限要求**：账本成员
+**限流策略**：每分钟60次
+
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**请求参数**
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数，账本必须存在且用户有访问权限 |
+| transactions | array | 是 | - | 收支记录列表 | 数组元素为收支记录对象，至少包含type, amount, account_id, category_id, date字段 |
+| transactions[].type | string | 是 | - | 交易类型 | 枚举值：expense（支出）, income（收入） |
+| transactions[].amount | number | 是 | - | 交易金额 | 大于0，最多两位小数 |
+| transactions[].account_id | integer | 是 | - | 账户ID | 正整数，账户必须存在且属于该账本 |
+| transactions[].category_id | integer | 是 | - | 分类ID | 正整数，分类必须存在且属于该账本 |
+| transactions[].date | string | 是 | - | 交易日期 | YYYY-MM-DD格式 |
+| transactions[].time | string | 否 | "00:00" | 交易时间 | HH:MM格式 |
+| transactions[].memo | string | 否 | "" | 交易备注 | 0-200个字符 |
+| transactions[].tags | array | 否 | [] | 标签ID列表 | 数组元素为正整数 |
+
+**请求示例**
 ```http
 POST /api/v1/transactions/batch
 Content-Type: application/json
@@ -254,9 +446,18 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 批量创建结果 |
+| data.success_count | integer | 成功创建的记录数 |
+| data.failed_count | integer | 创建失败的记录数 |
+| data.transaction_ids | array | 成功创建的交易ID列表 |
 
-```
+**成功响应示例**
+```json
 {
   "code": 200,
   "message": "批量记账成功",
@@ -268,10 +469,29 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-###  导入外部账单
+### 导入外部账单
 
-**请求**
+**功能描述**：从外部平台导入账单数据，支持支付宝、微信、银行等平台的账单格式
 
+**请求方法**：POST
+**URL路径**：/api/v1/transactions/import
+**权限要求**：账本成员
+**限流策略**：每分钟60次
+
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为multipart/form-data |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**请求参数**
+| 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
+|--------|------|------|--------|------|----------|
+| book_id | integer | 是 | - | 账本ID | 正整数，账本必须存在且用户有访问权限 |
+| provider | string | 是 | - | 账单提供方 | 枚举值：alipay, wechat, bank |
+| file | file | 是 | - | 账单文件 | 支持的文件格式：csv, xlsx, pdf |
+
+**请求示例**
 ```http
 POST /api/v1/transactions/import
 Content-Type: multipart/form-data
@@ -282,9 +502,23 @@ provider=alipay  // alipay, wechat, bank
 file=...  // 上传的账单文件
 ```
 
-**响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 导入结果 |
+| data.import_id | string | 导入任务ID |
+| data.total_count | integer | 总记录数 |
+| data.success_count | integer | 成功导入的记录数 |
+| data.failed_count | integer | 导入失败的记录数 |
+| data.failed_records | array | 失败记录详情 |
+| data.failed_records[].index | integer | 失败记录在文件中的索引 |
+| data.failed_records[].error | string | 失败原因 |
+| data.transaction_ids | array | 成功创建的交易ID列表 |
 
-```
+**成功响应示例**
+```json
 {
   "code": 200,
   "message": "导入成功",
@@ -308,9 +542,9 @@ file=...  // 上传的账单文件
 }
 ```
 
-##  数据模型
+## 数据模型
 
-###  收支记录模型
+### 收支记录模型
 
 ```javascript
 {
@@ -343,7 +577,7 @@ file=...  // 上传的账单文件
 }
 ```
 
-###  周期记账模型
+### 周期记账模型
 
 ```javascript
 {
@@ -369,7 +603,7 @@ file=...  // 上传的账单文件
 }
 ```
 
-###  记账模板模型
+### 记账模板模型
 
 ```javascript
 {
@@ -386,9 +620,9 @@ file=...  // 上传的账单文件
 }
 ```
 
-##  标签体系
+## 标签体系
 
-###  标签模型
+### 标签模型
 
 ```javascript
 {
@@ -401,7 +635,7 @@ file=...  // 上传的账单文件
 }
 ```
 
-##  错误码说明
+## 错误码说明
 
 | 错误码 | 描述 |
 |-------|------|

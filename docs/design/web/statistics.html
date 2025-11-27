@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 统计分析</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        /* 侧边栏样式 */
+        .sidebar {
+            background-color: white;
+            height: 100vh;
+            width: 16.6667%;
+            border-right: 1px solid #E4E7ED;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo h1 {
+            color: #409EFF;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #606266;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .nav-link.active {
+            color: #409EFF;
+            background-color: #ECF5FF;
+            border-right: 3px solid #409EFF;
+        }
+        /* 顶部导航栏样式 */
+        .top-nav {
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 16.6667%; /* 对应col-md-2的宽度 */
+            z-index: 999;
+        }
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+        .breadcrumb-item {
+            color: #909399;
+        }
+        .breadcrumb-item.active {
+            color: #303133;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+        }
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+        }
+        .menu-toggle {
+            margin-right: 20px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #606266;
+        }
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .user-info {
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        /* 主内容区样式 */
+        .main-content {
+            padding: 20px;
+            margin-top: 60px; /* 为固定导航栏留出空间 */
+        }
+        /* 调整主内容容器的样式 */
+        .content-wrapper {
+            margin-left: 16.6667%; /* 为固定侧边栏留出空间 */
+        }
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        /* 筛选栏样式 */
+        .filter-section {
+            padding: 20px;
+        }
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+        /* 图表区域样式 */
+        .chart-section {
+            padding: 20px;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #303133;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        /* 图表行样式 */
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        /* 响应式图表行 */
+        @media (max-width: 992px) {
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* 数据导出样式 */
+        .export-section {
+            padding: 20px;
+            text-align: right;
+        }
+        /* 统计卡片样式 */
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .stats-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background-color: #F5F7FA;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stats-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #303133;
+        }
+        .stats-label {
+            font-size: 14px;
+            color: #909399;
+        }
+        .stats-income {
+            color: #67C23A;
+        }
+        .stats-expense {
+            color: #F56C6C;
+        }
+        .stats-balance {
+            color: #E6A23C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 p-0">
+                <div class="sidebar">
+                    <div class="sidebar-logo">
+                        <h1>墨唐家庭记账</h1>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i> 仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="records.html">
+                                <i class="bi bi-journal-text me-2"></i> 收支记录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="accounts.html">
+                                <i class="bi bi-wallet2 me-2"></i> 账户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="categories.html">
+                                <i class="bi bi-tags me-2"></i> 分类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="statistics.html">
+                                <i class="bi bi-bar-chart-line me-2"></i> 统计分析
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="members.html">
+                                <i class="bi bi-people me-2"></i> 成员管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="settings.html">
+                                <i class="bi bi-gear me-2"></i> 系统设置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content-wrapper">
+                <!-- 顶部导航栏 -->
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <button class="menu-toggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">统计分析</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="user-info">
+                            <i class="bi bi-person-circle me-1"></i> 用户名
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 筛选栏 -->
+                    <div class="card filter-section">
+                        <div class="filter-row">
+                            <div class="filter-item">
+                                <label class="form-label">统计周期</label>
+                                <select class="form-select">
+                                    <option value="month">本月</option>
+                                    <option value="quarter">本季度</option>
+                                    <option value="year">本年</option>
+                                    <option value="custom">自定义</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">开始日期</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">结束日期</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">收支类型</label>
+                                <select class="form-select">
+                                    <option value="all">全部</option>
+                                    <option value="income">收入</option>
+                                    <option value="expense">支出</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">账户</label>
+                                <select class="form-select">
+                                    <option value="all">全部账户</option>
+                                    <option value="cash">现金</option>
+                                    <option value="alipay">支付宝</option>
+                                    <option value="wechat">微信</option>
+                                    <option value="bank">银行卡</option>
+                                </select>
+                            </div>
+                            <div class="filter-actions">
+                                <button class="btn btn-outline-secondary">重置</button>
+                                <button class="btn btn-primary">查询</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 统计卡片 -->
+                    <div class="card filter-section">
+                        <div class="stats-row">
+                            <div class="stats-card">
+                                <div class="stats-value stats-income">¥12,500.00</div>
+                                <div class="stats-label">总收入</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="stats-value stats-expense">¥8,200.00</div>
+                                <div class="stats-label">总支出</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="stats-value stats-balance">¥4,300.00</div>
+                                <div class="stats-label">结余</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="stats-value">128</div>
+                                <div class="stats-label">记账笔数</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 图表区域 -->
+                    <div class="card chart-section">
+                        <!-- 收支对比图 -->
+                        <div class="chart-title">收支对比</div>
+                        <div class="chart-container" id="incomeExpenseChart"></div>
+                        
+                        <!-- 双图表行 -->
+                        <div class="chart-row">
+                            <!-- 分类占比图 -->
+                            <div>
+                                <div class="chart-title">分类占比</div>
+                                <div class="chart-container" id="categoryChart"></div>
+                            </div>
+                            <!-- 账户收支图 -->
+                            <div>
+                                <div class="chart-title">账户收支</div>
+                                <div class="chart-container" id="accountChart"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 趋势分析图 -->
+                        <div class="chart-title">趋势分析</div>
+                        <div class="chart-container" id="trendChart"></div>
+                    </div>
+                    
+                    <!-- 数据导出 -->
+                    <div class="card export-section">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download me-1"></i> 导出Excel
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download me-1"></i> 导出CSV
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download me-1"></i> 导出PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 初始化图表 -->
+    <script>
+        // 初始化收支对比图
+        var incomeExpenseChart = echarts.init(document.getElementById('incomeExpenseChart'));
+        var incomeExpenseOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['收入', '支出'],
+                top: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '¥{value}'
+                }
+            },
+            series: [
+                {
+                    name: '收入',
+                    type: 'bar',
+                    data: [10500, 9800, 11200, 10800, 12500, 13200, 12800, 13500, 14200, 13800, 14500, 12500],
+                    itemStyle: {
+                        color: '#67C23A'
+                    }
+                },
+                {
+                    name: '支出',
+                    type: 'bar',
+                    data: [7200, 6800, 7500, 7100, 7800, 8200, 7900, 8500, 8800, 8500, 9200, 8200],
+                    itemStyle: {
+                        color: '#F56C6C'
+                    }
+                }
+            ]
+        };
+        incomeExpenseChart.setOption(incomeExpenseOption);
+        
+        // 初始化分类占比图
+        var categoryChart = echarts.init(document.getElementById('categoryChart'));
+        var categoryOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}: {c} ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 'center'
+            },
+            series: [
+                {
+                    name: '支出分类',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 14,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: [
+                        { value: 3500, name: '房租', itemStyle: { color: '#F56C6C' } },
+                        { value: 1200, name: '餐饮', itemStyle: { color: '#E6A23C' } },
+                        { value: 800, name: '购物', itemStyle: { color: '#F5994A' } },
+                        { value: 500, name: '交通', itemStyle: { color: '#409EFF' } },
+                        { value: 200, name: '娱乐', itemStyle: { color: '#909399' } },
+                        { value: 2000, name: '其他', itemStyle: { color: '#67C23A' } }
+                    ]
+                }
+            ]
+        };
+        categoryChart.setOption(categoryOption);
+        
+        // 初始化账户收支图
+        var accountChart = echarts.init(document.getElementById('accountChart'));
+        var accountOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['收入', '支出'],
+                top: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['现金', '支付宝', '微信', '银行卡']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '¥{value}'
+                }
+            },
+            series: [
+                {
+                    name: '收入',
+                    type: 'bar',
+                    stack: 'total',
+                    data: [1200, 2800, 2100, 6400],
+                    itemStyle: {
+                        color: '#67C23A'
+                    }
+                },
+                {
+                    name: '支出',
+                    type: 'bar',
+                    stack: 'total',
+                    data: [800, 1500, 1200, 4700],
+                    itemStyle: {
+                        color: '#F56C6C'
+                    }
+                }
+            ]
+        };
+        accountChart.setOption(accountOption);
+        
+        // 初始化趋势分析图
+        var trendChart = echarts.init(document.getElementById('trendChart'));
+        var trendOption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['收入', '支出', '结余'],
+                top: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '¥{value}'
+                }
+            },
+            series: [
+                {
+                    name: '收入',
+                    type: 'line',
+                    data: [10500, 9800, 11200, 10800, 12500, 13200, 12800, 13500, 14200, 13800, 14500, 12500],
+                    itemStyle: {
+                        color: '#67C23A'
+                    },
+                    smooth: true
+                },
+                {
+                    name: '支出',
+                    type: 'line',
+                    data: [7200, 6800, 7500, 7100, 7800, 8200, 7900, 8500, 8800, 8500, 9200, 8200],
+                    itemStyle: {
+                        color: '#F56C6C'
+                    },
+                    smooth: true
+                },
+                {
+                    name: '结余',
+                    type: 'line',
+                    data: [3300, 3000, 3700, 3700, 4700, 5000, 4900, 5000, 5400, 5300, 5300, 4300],
+                    itemStyle: {
+                        color: '#409EFF'
+                    },
+                    smooth: true
+                }
+            ]
+        };
+        trendChart.setOption(trendOption);
+        
+        // 响应式处理
+        window.addEventListener('resize', function() {
+            incomeExpenseChart.resize();
+            categoryChart.resize();
+            accountChart.resize();
+            trendChart.resize();
+        });
+    </script>
+</body>
+</html>

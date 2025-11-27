@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 统计</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .date-selector {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .date-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #DCDFE6;
+            border-radius: 20px;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .date-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .custom-date {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .tab-container {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #E4E7ED;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 1rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .tab-content {
+            padding: 1.5rem;
+        }
+        
+        .chart-container {
+            margin-bottom: 2rem;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .stats-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #E4E7ED;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .income {
+            color: var(--success-color);
+        }
+        
+        .expense {
+            color: var(--danger-color);
+        }
+        
+        .balance {
+            color: var(--primary-color);
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .export-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        
+        .export-btn:hover {
+            background-color: #66B1FF;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div></div>
+        <h1 class="header-title">统计分析</h1>
+        <button class="btn-text">筛选</button>
+    </div>
+    
+    <div class="date-selector">
+        <div class="date-range">
+            <button class="date-btn active">今天</button>
+            <button class="date-btn">本周</button>
+            <button class="date-btn">本月</button>
+            <button class="date-btn">本年</button>
+        </div>
+        <div class="custom-date">
+            <span>自定义</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+        </div>
+    </div>
+    
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" data-tab="overview">概览</div>
+            <div class="tab" data-tab="category">分类</div>
+            <div class="tab" data-tab="account">账户</div>
+            <div class="tab" data-tab="trend">趋势</div>
+        </div>
+        
+        <div class="tab-content">
+            <!-- 概览标签页 -->
+            <div id="overview" class="tab-pane active">
+                <div class="stats-summary">
+                    <div class="stat-item">
+                        <div class="stat-label">总收入</div>
+                        <div class="stat-value income">¥12,345.67</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">总支出</div>
+                        <div class="stat-value expense">¥8,901.23</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">结余</div>
+                        <div class="stat-value balance">¥3,444.44</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">收支对比</div>
+                    <div id="incomeExpenseChart" class="chart"></div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">收支趋势</div>
+                    <div id="trendChart" class="chart"></div>
+                </div>
+            </div>
+            
+            <!-- 分类标签页 -->
+            <div id="category" class="tab-pane" style="display: none;">
+                <div class="chart-container">
+                    <div class="chart-title">支出分类占比</div>
+                    <div id="expenseCategoryChart" class="chart"></div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">收入分类占比</div>
+                    <div id="incomeCategoryChart" class="chart"></div>
+                </div>
+            </div>
+            
+            <!-- 账户标签页 -->
+            <div id="account" class="tab-pane" style="display: none;">
+                <div class="chart-container">
+                    <div class="chart-title">账户收支情况</div>
+                    <div id="accountChart" class="chart"></div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">账户余额分布</div>
+                    <div id="accountBalanceChart" class="chart"></div>
+                </div>
+            </div>
+            
+            <!-- 趋势标签页 -->
+            <div id="trend" class="tab-pane" style="display: none;">
+                <div class="chart-container">
+                    <div class="chart-title">收支趋势</div>
+                    <div id="detailedTrendChart" class="chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-text">首页</div>
+        </a>
+        <a href="add-record.html" class="nav-item">
+            <div class="nav-icon">➕</div>
+            <div class="nav-text">记账</div>
+        </a>
+        <a href="statistics.html" class="nav-item active">
+            <div class="nav-icon">📊</div>
+            <div class="nav-text">统计</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-text">我的</div>
+        </a>
+    </div>
+    
+    <!-- 导出按钮 -->
+    <button class="export-btn" title="导出数据">📤</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 标签切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有标签的活跃状态
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // 添加当前标签的活跃状态
+                this.classList.add('active');
+                
+                // 隐藏所有标签内容
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.style.display = 'none';
+                });
+                // 显示当前标签内容
+                const tabId = this.dataset.tab;
+                document.getElementById(tabId).style.display = 'block';
+                
+                // 重新渲染图表
+                renderCharts(tabId);
+            });
+        });
+        
+        // 日期范围切换
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有按钮的活跃状态
+                document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前按钮的活跃状态
+                this.classList.add('active');
+            });
+        });
+        
+        // 渲染图表
+        function renderCharts(tabId) {
+            switch(tabId) {
+                case 'overview':
+                    renderIncomeExpenseChart();
+                    renderTrendChart();
+                    break;
+                case 'category':
+                    renderExpenseCategoryChart();
+                    renderIncomeCategoryChart();
+                    break;
+                case 'account':
+                    renderAccountChart();
+                    renderAccountBalanceChart();
+                    break;
+                case 'trend':
+                    renderDetailedTrendChart();
+                    break;
+            }
+        }
+        
+        // 收支对比图表
+        function renderIncomeExpenseChart() {
+            const chart = echarts.init(document.getElementById('incomeExpenseChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['收入', '支出'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '收入',
+                        type: 'bar',
+                        data: [12000, 19000, 36000, 28000, 45000, 32000],
+                        itemStyle: {
+                            color: '#67C23A'
+                        }
+                    },
+                    {
+                        name: '支出',
+                        type: 'bar',
+                        data: [8000, 15000, 22000, 18000, 30000, 25000],
+                        itemStyle: {
+                            color: '#F56C6C'
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 收支趋势图表
+        function renderTrendChart() {
+            const chart = echarts.init(document.getElementById('trendChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['收入', '支出'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '收入',
+                        type: 'line',
+                        data: [1200, 1900, 3600, 2800, 4500, 3200, 2400, 3800, 4200, 3600],
+                        itemStyle: {
+                            color: '#67C23A'
+                        },
+                        smooth: true
+                    },
+                    {
+                        name: '支出',
+                        type: 'line',
+                        data: [800, 1500, 2200, 1800, 3000, 2500, 1800, 2800, 3200, 2600],
+                        itemStyle: {
+                            color: '#F56C6C'
+                        },
+                        smooth: true
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 支出分类占比图表
+        function renderExpenseCategoryChart() {
+            const chart = echarts.init(document.getElementById('expenseCategoryChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center'
+                },
+                series: [
+                    {
+                        name: '支出分类',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 20,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 3000, name: '餐饮', itemStyle: { color: '#F56C6C' } },
+                            { value: 2000, name: '交通', itemStyle: { color: '#E6A23C' } },
+                            { value: 1500, name: '购物', itemStyle: { color: '#909399' } },
+                            { value: 1000, name: '娱乐', itemStyle: { color: '#67C23A' } },
+                            { value: 800, name: '水电', itemStyle: { color: '#409EFF' } },
+                            { value: 600, name: '医疗', itemStyle: { color: '#C0C4CC' } }
+                        ]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 收入分类占比图表
+        function renderIncomeCategoryChart() {
+            const chart = echarts.init(document.getElementById('incomeCategoryChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center'
+                },
+                series: [
+                    {
+                        name: '收入分类',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 20,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 8000, name: '工资', itemStyle: { color: '#67C23A' } },
+                            { value: 3000, name: '奖金', itemStyle: { color: '#409EFF' } },
+                            { value: 1500, name: '理财', itemStyle: { color: '#E6A23C' } },
+                            { value: 845.67, name: '其他', itemStyle: { color: '#909399' } }
+                        ]
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 账户收支情况图表
+        function renderAccountChart() {
+            const chart = echarts.init(document.getElementById('accountChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['收入', '支出'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['现金', '银行卡', '微信', '支付宝']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '收入',
+                        type: 'bar',
+                        data: [2000, 5000, 3000, 2345.67],
+                        itemStyle: {
+                            color: '#67C23A'
+                        }
+                    },
+                    {
+                        name: '支出',
+                        type: 'bar',
+                        data: [1500, 3000, 2500, 1901.23],
+                        itemStyle: {
+                            color: '#F56C6C'
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 账户余额分布图表
+        function renderAccountBalanceChart() {
+            const chart = echarts.init(document.getElementById('accountBalanceChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center'
+                },
+                series: [
+                    {
+                        name: '账户余额',
+                        type: 'pie',
+                        radius: '60%',
+                        data: [
+                            { value: 1234.56, name: '现金', itemStyle: { color: '#409EFF' } },
+                            { value: 5678.90, name: '银行卡', itemStyle: { color: '#67C23A' } },
+                            { value: 3456.78, name: '微信', itemStyle: { color: '#E6A23C' } },
+                            { value: 7890.12, name: '支付宝', itemStyle: { color: '#F56C6C' } }
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 详细趋势图表
+        function renderDetailedTrendChart() {
+            const chart = echarts.init(document.getElementById('detailedTrendChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['收入', '支出'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日', '11日', '12日', '13日', '14日', '15日']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '收入',
+                        type: 'line',
+                        data: [1200, 1900, 3600, 2800, 4500, 3200, 2400, 3800, 4200, 3600, 2800, 3500, 4100, 3300, 2900],
+                        itemStyle: {
+                            color: '#67C23A'
+                        },
+                        smooth: true
+                    },
+                    {
+                        name: '支出',
+                        type: 'line',
+                        data: [800, 1500, 2200, 1800, 3000, 2500, 1800, 2800, 3200, 2600, 2000, 2400, 2800, 2200, 1900],
+                        itemStyle: {
+                            color: '#F56C6C'
+                        },
+                        smooth: true
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+        
+        // 初始化图表
+        renderCharts('overview');
+        
+        // 窗口大小变化时重新渲染图表
+        window.addEventListener('resize', function() {
+            const activeTab = document.querySelector('.tab.active').dataset.tab;
+            renderCharts(activeTab);
+        });
+    </script>
+</body>
+</html>

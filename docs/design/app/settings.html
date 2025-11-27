@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 系统设置</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .settings-section {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            padding: 1rem 1.5rem;
+            background-color: #F5F7FA;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #F0F2F5;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .setting-item:hover {
+            background-color: #F5F7FA;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .setting-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .setting-label {
+            font-size: 1rem;
+        }
+        
+        .setting-value {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #DCDFE6;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .arrow-right {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .about-section {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .app-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .app-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-version {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        
+        .about-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .about-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .about-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 功能图标颜色 */
+        .icon-language { color: #409EFF; }
+        .icon-currency { color: #67C23A; }
+        .icon-date { color: #E6A23C; }
+        .icon-notification { color: #F56C6C; }
+        .icon-privacy { color: #909399; }
+        .icon-security { color: #C0C4CC; }
+        .icon-clear { color: #722ED1; }
+        .icon-about { color: #FA8C16; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">返回</button>
+        <h1 class="header-title">系统设置</h1>
+        <div></div>
+    </div>
+    
+    <!-- 基本设置 -->
+    <div class="settings-section">
+        <div class="section-title">基本设置</div>
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-language">🌐</div>
+                <div class="setting-label">语言设置</div>
+            </div>
+            <div class="setting-value">
+                <span>简体中文</span>
+                <span class="arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-currency">💰</div>
+                <div class="setting-label">货币单位</div>
+            </div>
+            <div class="setting-value">
+                <span>人民币 (¥)</span>
+                <span class="arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-date">📅</div>
+                <div class="setting-label">日期格式</div>
+            </div>
+            <div class="setting-value">
+                <span>YYYY-MM-DD</span>
+                <span class="arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 通知设置 -->
+    <div class="settings-section">
+        <div class="section-title">通知设置</div>
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-notification">🔔</div>
+                <div class="setting-label">记账提醒</div>
+            </div>
+            <div class="setting-value">
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-notification">📊</div>
+                <div class="setting-label">月度报告</div>
+            </div>
+            <div class="setting-value">
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-notification">💰</div>
+                <div class="setting-label">预算提醒</div>
+            </div>
+            <div class="setting-value">
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 安全设置 -->
+    <div class="settings-section">
+        <div class="section-title">安全设置</div>
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-security">🔒</div>
+                <div class="setting-label">修改密码</div>
+            </div>
+            <div class="setting-value">
+                <span class="arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-privacy">👁️</div>
+                <div class="setting-label">隐私设置</div>
+            </div>
+            <div class="setting-value">
+                <span class="arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-left">
+                <div class="setting-icon icon-clear">🗑️</div>
+                <div class="setting-label">清除缓存</div>
+            </div>
+            <div class="setting-value">
+                <span>12.5 MB</span>
+                <span class="arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 关于我们 -->
+    <div class="about-section">
+        <div class="app-logo">💰</div>
+        <div class="app-name">墨唐家庭记账</div>
+        <div class="app-version">版本 v1.0.0</div>
+        <div class="about-links">
+            <a href="#" class="about-link">隐私政策</a>
+            <a href="#" class="about-link">用户协议</a>
+            <a href="#" class="about-link">帮助中心</a>
+        </div>
+        <div class="app-version">© 2025 墨唐家庭记账</div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 设置项点击事件
+        document.querySelectorAll('.setting-item').forEach(item => {
+            // 排除带有开关的设置项
+            if (!item.querySelector('.toggle-switch')) {
+                item.addEventListener('click', function() {
+                    const label = this.querySelector('.setting-label').textContent;
+                    alert(`进入${label}设置页面`);
+                });
+            }
+        });
+        
+        // 关于链接点击事件
+        document.querySelectorAll('.about-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const text = this.textContent;
+                alert(`${text}功能开发中`);
+            });
+        });
+    </script>
+</body>
+</html>

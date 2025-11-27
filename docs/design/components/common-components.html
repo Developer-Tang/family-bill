@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 通用组件库</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem 0;
+        }
+        
+        .component-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .component-demo {
+            background-color: #F5F7FA;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #E4E7ED;
+        }
+        
+        .component-code {
+            background-color: #282c34;
+            color: #abb2bf;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .component-description {
+            color: var(--text-light);
+            margin: 1rem 0;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #66B1FF;
+            border-color: #66B1FF;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #85CE61;
+            border-color: #85CE61;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #F78989;
+            border-color: #F78989;
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-text:hover {
+            background-color: rgba(64, 158, 255, 0.1);
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-icon:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 输入框样式 */
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #DCDFE6;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(64, 158, 255, 0.25);
+        }
+        
+        /* 卡片样式 */
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* 统计卡片样式 */
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* 表格样式 */
+        .table {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .table th {
+            background-color: #F5F7FA;
+            font-weight: 600;
+            border-bottom: 2px solid #E4E7ED;
+        }
+        
+        .table td {
+            border-bottom: 1px solid #F0F2F5;
+        }
+        
+        /* 弹窗样式 */
+        .modal-content {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #E4E7ED;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+        }
+        
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tag-primary {
+            background-color: rgba(64, 158, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .tag-success {
+            background-color: rgba(103, 194, 58, 0.1);
+            color: var(--success-color);
+        }
+        
+        .tag-danger {
+            background-color: rgba(245, 108, 108, 0.1);
+            color: var(--danger-color);
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>墨唐家庭记账 - 通用组件库</h1>
+        
+        <!-- 按钮组件 -->
+        <div class="component-section">
+            <h2>1. 按钮组件</h2>
+            <div class="component-description">
+                提供多种样式和状态的按钮，包括主要按钮、次要按钮、文本按钮和图标按钮。
+            </div>
+            
+            <h3>1.1 主要按钮</h3>
+            <div class="component-demo">
+                <button class="btn btn-primary">主要按钮</button>
+                <button class="btn btn-primary" disabled>禁用状态</button>
+                <button class="btn btn-success">成功按钮</button>
+                <button class="btn btn-danger">危险按钮</button>
+            </div>
+            
+            <h3>1.2 次要按钮</h3>
+            <div class="component-demo">
+                <button class="btn btn-outline-primary">轮廓按钮</button>
+                <button class="btn btn-outline-success">成功轮廓</button>
+                <button class="btn btn-outline-danger">危险轮廓</button>
+            </div>
+            
+            <h3>1.3 文本和图标按钮</h3>
+            <div class="component-demo">
+                <button class="btn-text">文本按钮</button>
+                <button class="btn-icon">📊</button>
+                <button class="btn-icon">➕</button>
+                <button class="btn-icon">🗑️</button>
+            </div>
+        </div>
+        
+        <!-- 输入框组件 -->
+        <div class="component-section">
+            <h2>2. 输入框组件</h2>
+            <div class="component-description">
+                提供多种类型的输入框，包括文本输入、数字输入、密码输入和日期选择器。
+            </div>
+            
+            <div class="component-demo">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="textInput" class="form-label">文本输入</label>
+                        <input type="text" class="form-control" id="textInput" placeholder="请输入文本">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="numberInput" class="form-label">数字输入</label>
+                        <input type="number" class="form-control" id="numberInput" placeholder="请输入数字">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="passwordInput" class="form-label">密码输入</label>
+                        <input type="password" class="form-control" id="passwordInput" placeholder="请输入密码">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="dateInput" class="form-label">日期选择器</label>
+                        <input type="date" class="form-control" id="dateInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 选择器组件 -->
+        <div class="component-section">
+            <h2>3. 选择器组件</h2>
+            <div class="component-description">
+                提供下拉选择器、级联选择器和标签选择器等多种选择方式。
+            </div>
+            
+            <div class="component-demo">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="selectInput" class="form-label">下拉选择器</label>
+                        <select class="form-select" id="selectInput">
+                            <option selected>请选择</option>
+                            <option value="1">选项1</option>
+                            <option value="2">选项2</option>
+                            <option value="3">选项3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">标签选择器</label>
+                        <div>
+                            <span class="tag tag-primary">标签1</span>
+                            <span class="tag tag-success">标签2</span>
+                            <span class="tag tag-danger">标签3</span>
+                            <span class="tag tag-primary">标签4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 卡片组件 -->
+        <div class="component-section">
+            <h2>4. 卡片组件</h2>
+            <div class="component-description">
+                提供统计卡片、内容卡片和列表卡片等多种卡片样式。
+            </div>
+            
+            <h3>4.1 统计卡片</h3>
+            <div class="component-demo">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--primary-color);">¥12,345.67</div>
+                            <div class="stat-label">总收入</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--danger-color);">¥8,901.23</div>
+                            <div class="stat-label">总支出</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--success-color);">¥3,444.44</div>
+                            <div class="stat-label">结余</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>4.2 内容卡片</h3>
+            <div class="component-demo">
+                <div class="card">
+                    <div class="card-header">
+                        卡片标题
+                    </div>
+                    <div class="card-body">
+                        <p>这是卡片内容区域，可以包含文本、图片、按钮等元素。</p>
+                        <button class="btn btn-primary">操作按钮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 表格组件 -->
+        <div class="component-section">
+            <h2>5. 表格组件</h2>
+            <div class="component-description">
+                提供基础表格、可编辑表格和分页控件，支持排序、筛选和分页功能。
+            </div>
+            
+            <div class="component-demo">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>类型</th>
+                            <th>分类</th>
+                            <th>金额</th>
+                            <th>账户</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-11-27</td>
+                            <td><span class="tag tag-danger">支出</span></td>
+                            <td>餐饮</td>
+                            <td>¥128.50</td>
+                            <td>微信</td>
+                            <td>
+                                <button class="btn-icon">✏️</button>
+                                <button class="btn-icon">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2025-11-26</td>
+                            <td><span class="tag tag-success">收入</span></td>
+                            <td>工资</td>
+                            <td>¥8,000.00</td>
+                            <td>银行卡</td>
+                            <td>
+                                <button class="btn-icon">✏️</button>
+                                <button class="btn-icon">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2025-11-25</td>
+                            <td><span class="tag tag-danger">支出</span></td>
+                            <td>交通</td>
+                            <td>¥45.00</td>
+                            <td>现金</td>
+                            <td>
+                                <button class="btn-icon">✏️</button>
+                                <button class="btn-icon">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 图表组件 -->
+        <div class="component-section">
+            <h2>6. 图表组件</h2>
+            <div class="component-description">
+                基于ECharts实现的图表组件，包括折线图、柱状图、饼图和雷达图等。
+            </div>
+            
+            <h3>6.1 折线图</h3>
+            <div class="component-demo">
+                <div id="lineChart" class="chart-container"></div>
+            </div>
+            
+            <h3>6.2 柱状图</h3>
+            <div class="component-demo">
+                <div id="barChart" class="chart-container"></div>
+            </div>
+            
+            <h3>6.3 饼图</h3>
+            <div class="component-demo">
+                <div id="pieChart" class="chart-container"></div>
+            </div>
+        </div>
+        
+        <!-- 弹窗组件 -->
+        <div class="component-section">
+            <h2>7. 弹窗组件</h2>
+            <div class="component-description">
+                提供模态框、抽屉式弹窗和Toast提示等多种弹窗样式。
+            </div>
+            
+            <h3>7.1 模态框</h3>
+            <div class="component-demo">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    打开模态框
+                </button>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">模态框标题</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                这是模态框的内容区域，可以包含表单、文本、图片等元素。
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        // 初始化折线图
+        const lineChart = echarts.init(document.getElementById('lineChart'));
+        const lineOption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['收入', '支出']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['1月', '2月', '3月', '4月', '5月', '6月']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '收入',
+                    type: 'line',
+                    data: [12000, 19000, 36000, 28000, 45000, 32000],
+                    itemStyle: {
+                        color: '#67C23A'
+                    }
+                },
+                {
+                    name: '支出',
+                    type: 'line',
+                    data: [8000, 15000, 22000, 18000, 30000, 25000],
+                    itemStyle: {
+                        color: '#F56C6C'
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineOption);
+        
+        // 初始化柱状图
+        const barChart = echarts.init(document.getElementById('barChart'));
+        const barOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['收入', '支出']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['现金', '银行卡', '微信', '支付宝']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '收入',
+                    type: 'bar',
+                    data: [2000, 5000, 3000, 2345.67],
+                    itemStyle: {
+                        color: '#67C23A'
+                    }
+                },
+                {
+                    name: '支出',
+                    type: 'bar',
+                    data: [1500, 3000, 2500, 1901.23],
+                    itemStyle: {
+                        color: '#F56C6C'
+                    }
+                }
+            ]
+        };
+        barChart.setOption(barOption);
+        
+        // 初始化饼图
+        const pieChart = echarts.init(document.getElementById('pieChart'));
+        const pieOption = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                right: 10,
+                top: 'center'
+            },
+            series: [
+                {
+                    name: '支出分类',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 20,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: [
+                        { value: 3000, name: '餐饮', itemStyle: { color: '#F56C6C' } },
+                        { value: 2000, name: '交通', itemStyle: { color: '#E6A23C' } },
+                        { value: 1500, name: '购物', itemStyle: { color: '#909399' } },
+                        { value: 1000, name: '娱乐', itemStyle: { color: '#67C23A' } },
+                        { value: 800, name: '水电', itemStyle: { color: '#409EFF' } }
+                    ]
+                }
+            ]
+        };
+        pieChart.setOption(pieOption);
+        
+        // 窗口大小变化时重新渲染图表
+        window.addEventListener('resize', function() {
+            lineChart.resize();
+            barChart.resize();
+            pieChart.resize();
+        });
+    </script>
+</body>
+</html>

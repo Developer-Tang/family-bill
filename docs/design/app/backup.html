@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 数据备份</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .backup-section {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .backup-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #66B1FF;
+        }
+        
+        .btn-outline {
+            background-color: white;
+            color: var(--text-color);
+            border: 1px solid #DCDFE6;
+        }
+        
+        .btn-outline:hover {
+            background-color: #F5F7FA;
+        }
+        
+        .auto-backup {
+            margin-bottom: 1.5rem;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            font-size: 1rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #DCDFE6;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .backup-list {
+            margin-top: 1rem;
+        }
+        
+        .backup-item {
+            background-color: #F5F7FA;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .backup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .backup-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .backup-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .backup-size {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .backup-actions-item {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: white;
+            color: var(--text-color);
+        }
+        
+        .restore-btn {
+            color: var(--success-color);
+        }
+        
+        .delete-btn {
+            color: var(--danger-color);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">返回</button>
+        <h1 class="header-title">数据备份</h1>
+        <div></div>
+    </div>
+    
+    <div class="backup-section">
+        <div class="section-title">备份操作</div>
+        <div class="backup-actions">
+            <button class="btn btn-primary">立即备份</button>
+            <button class="btn btn-outline">恢复数据</button>
+        </div>
+    </div>
+    
+    <div class="backup-section">
+        <div class="section-title">自动备份设置</div>
+        <div class="auto-backup">
+            <div class="setting-item">
+                <div class="setting-label">开启自动备份</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">备份频率</div>
+                <div class="setting-value">每周</div>
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">备份保留数量</div>
+                <div class="setting-value">最近 10 份</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="backup-section">
+        <div class="section-title">备份历史</div>
+        <div class="backup-list">
+            <!-- 备份记录 -->
+            <div class="backup-item">
+                <div class="backup-header">
+                    <div class="backup-name">手动备份</div>
+                    <div class="backup-date">2025-11-27 14:30</div>
+                </div>
+                <div class="backup-size">大小：1.2 MB</div>
+                <div class="backup-actions-item">
+                    <button class="action-btn restore-btn">恢复</button>
+                    <button class="action-btn delete-btn">删除</button>
+                </div>
+            </div>
+            
+            <div class="backup-item">
+                <div class="backup-header">
+                    <div class="backup-name">自动备份</div>
+                    <div class="backup-date">2025-11-20 02:00</div>
+                </div>
+                <div class="backup-size">大小：1.1 MB</div>
+                <div class="backup-actions-item">
+                    <button class="action-btn restore-btn">恢复</button>
+                    <button class="action-btn delete-btn">删除</button>
+                </div>
+            </div>
+            
+            <div class="backup-item">
+                <div class="backup-header">
+                    <div class="backup-name">自动备份</div>
+                    <div class="backup-date">2025-11-13 02:00</div>
+                </div>
+                <div class="backup-size">大小：1.0 MB</div>
+                <div class="backup-actions-item">
+                    <button class="action-btn restore-btn">恢复</button>
+                    <button class="action-btn delete-btn">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 立即备份按钮点击事件
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            alert('立即备份功能开发中');
+        });
+        
+        // 恢复数据按钮点击事件
+        document.querySelectorAll('.btn-outline')[0].addEventListener('click', function() {
+            alert('恢复数据功能开发中');
+        });
+        
+        // 恢复按钮点击事件
+        document.querySelectorAll('.restore-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('确定要恢复这个备份吗？')) {
+                    alert('恢复备份功能开发中');
+                }
+            });
+        });
+        
+        // 删除按钮点击事件
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('确定要删除这个备份吗？')) {
+                    alert('删除备份功能开发中');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

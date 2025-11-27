@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 首页</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        /* 顶部导航栏 */
+        .app-header {
+            background-color: #409EFF;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-header h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .header-actions button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        /* 统计卡片 */
+        .stats-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .stats-title {
+            font-size: 14px;
+            color: #909399;
+            margin-bottom: 15px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .stats-item {
+            flex: 1;
+            text-align: center;
+        }
+        .stats-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stats-label {
+            font-size: 12px;
+            color: #909399;
+        }
+        .stats-income {
+            color: #67C23A;
+        }
+        .stats-expense {
+            color: #F56C6C;
+        }
+        .stats-balance {
+            color: #E6A23C;
+        }
+        /* 快捷记账按钮 */
+        .quick-record-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .quick-record-title {
+            font-size: 14px;
+            color: #909399;
+            margin-bottom: 15px;
+        }
+        .quick-record-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .quick-btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .quick-btn.income {
+            background-color: #67C23A;
+        }
+        .quick-btn.expense {
+            background-color: #F56C6C;
+        }
+        .quick-btn i {
+            font-size: 20px;
+        }
+        /* 图表区域 */
+        .chart-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .chart-title {
+            font-size: 14px;
+            color: #909399;
+            margin-bottom: 15px;
+        }
+        .chart-container {
+            height: 200px;
+        }
+        /* 最近记录 */
+        .recent-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 70px; /* 为底部导航栏留出空间 */
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 14px;
+            color: #909399;
+        }
+        .section-more {
+            font-size: 12px;
+            color: #409EFF;
+            text-decoration: none;
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #F0F2F5;
+        }
+        .record-item:last-child {
+            border-bottom: none;
+        }
+        .record-info {
+            display: flex;
+            align-items: center;
+        }
+        .record-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        .record-icon.income {
+            background-color: #F0F9EB;
+            color: #67C23A;
+        }
+        .record-icon.expense {
+            background-color: #FEF0F0;
+            color: #F56C6C;
+        }
+        .record-details h5 {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0;
+            color: #303133;
+        }
+        .record-details p {
+            font-size: 12px;
+            margin: 0;
+            color: #909399;
+        }
+        .record-amount {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .record-amount.income {
+            color: #67C23A;
+        }
+        .record-amount.expense {
+            color: #F56C6C;
+        }
+        /* 底部导航栏 */
+        .app-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #909399;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .nav-item.active {
+            color: #409EFF;
+        }
+        .nav-item i {
+            font-size: 20px;
+        }
+        /* 适配不同屏幕尺寸 */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 480px;
+                margin: 0 auto;
+                background-color: white;
+                min-height: 100vh;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <div class="app-header">
+            <h1>墨唐家庭记账</h1>
+            <div class="header-actions">
+                <button title="消息">
+                    <i class="bi bi-bell"></i>
+                </button>
+                <button title="设置">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-section">
+            <div class="stats-title">本月统计</div>
+            <div class="stats-row">
+                <div class="stats-item">
+                    <div class="stats-value stats-income">¥12,500</div>
+                    <div class="stats-label">收入</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-value stats-expense">¥8,200</div>
+                    <div class="stats-label">支出</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-value stats-balance">¥4,300</div>
+                    <div class="stats-label">结余</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 快捷记账按钮 -->
+        <div class="quick-record-section">
+            <div class="quick-record-title">快捷记账</div>
+            <div class="quick-record-buttons">
+                <button class="quick-btn income">
+                    <i class="bi bi-arrow-up"></i>
+                    <span>记收入</span>
+                </button>
+                <button class="quick-btn expense">
+                    <i class="bi bi-arrow-down"></i>
+                    <span>记支出</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 收支趋势图 -->
+        <div class="chart-section">
+            <div class="chart-title">收支趋势</div>
+            <div id="trendChart" class="chart-container"></div>
+        </div>
+        
+        <!-- 最近收支记录 -->
+        <div class="recent-section">
+            <div class="section-header">
+                <div class="section-title">最近记录</div>
+                <a href="records.html" class="section-more">查看全部</a>
+            </div>
+            <div class="records-list">
+                <div class="record-item" onclick="location.href='record-detail.html'">
+                    <div class="record-info">
+                        <div class="record-icon expense">
+                            <i class="bi bi-utensils"></i>
+                        </div>
+                        <div class="record-details">
+                            <h5>餐饮</h5>
+                            <p>2025-11-27 12:30</p>
+                        </div>
+                    </div>
+                    <div class="record-amount expense">-¥88.00</div>
+                </div>
+                <div class="record-item" onclick="location.href='record-detail.html'">
+                    <div class="record-info">
+                        <div class="record-icon expense">
+                            <i class="bi bi-shop"></i>
+                        </div>
+                        <div class="record-details">
+                            <h5>购物</h5>
+                            <p>2025-11-27 10:15</p>
+                        </div>
+                    </div>
+                    <div class="record-amount expense">-¥235.00</div>
+                </div>
+                <div class="record-item" onclick="location.href='record-detail.html'">
+                    <div class="record-info">
+                        <div class="record-icon income">
+                            <i class="bi bi-bank"></i>
+                        </div>
+                        <div class="record-details">
+                            <h5>工资</h5>
+                            <p>2025-11-26 18:00</p>
+                        </div>
+                    </div>
+                    <div class="record-amount income">+¥12,500.00</div>
+                </div>
+                <div class="record-item" onclick="location.href='record-detail.html'">
+                    <div class="record-info">
+                        <div class="record-icon expense">
+                            <i class="bi bi-house"></i>
+                        </div>
+                        <div class="record-details">
+                            <h5>房租</h5>
+                            <p>2025-11-25 09:00</p>
+                        </div>
+                    </div>
+                    <div class="record-amount expense">-¥3,500.00</div>
+                </div>
+                <div class="record-item" onclick="location.href='record-detail.html'">
+                    <div class="record-info">
+                        <div class="record-icon expense">
+                            <i class="bi bi-car-front"></i>
+                        </div>
+                        <div class="record-details">
+                            <h5>交通</h5>
+                            <p>2025-11-24 17:30</p>
+                        </div>
+                    </div>
+                    <div class="record-amount expense">-¥45.00</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航栏 -->
+        <div class="app-footer">
+            <a href="index.html" class="nav-item active">
+                <i class="bi bi-house-door"></i>
+                <span>首页</span>
+            </a>
+            <a href="add-record.html" class="nav-item">
+                <i class="bi bi-plus-circle"></i>
+                <span>记账</span>
+            </a>
+            <a href="statistics.html" class="nav-item">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>统计</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="bi bi-person"></i>
+                <span>我的</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 初始化图表 -->
+    <script>
+        // 初始化收支趋势图
+        var trendChart = echarts.init(document.getElementById('trendChart'));
+        var trendOption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['收入', '支出'],
+                top: 0,
+                textStyle: {
+                    fontSize: 12
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['1日', '5日', '10日', '15日', '20日', '25日', '30日'],
+                axisLabel: {
+                    fontSize: 10
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '¥{value}',
+                    fontSize: 10
+                }
+            },
+            series: [
+                {
+                    name: '收入',
+                    type: 'line',
+                    data: [3500, 2800, 1200, 4500, 1800, 2200, 12500],
+                    itemStyle: {
+                        color: '#67C23A'
+                    },
+                    lineStyle: {
+                        width: 2
+                    }
+                },
+                {
+                    name: '支出',
+                    type: 'line',
+                    data: [1200, 1800, 2300, 1500, 2100, 3500, 8200],
+                    itemStyle: {
+                        color: '#F56C6C'
+                    },
+                    lineStyle: {
+                        width: 2
+                    }
+                }
+            ]
+        };
+        trendChart.setOption(trendOption);
+        
+        // 响应式处理
+        window.addEventListener('resize', function() {
+            trendChart.resize();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 业务组件库</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem 0;
+        }
+        
+        .component-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .component-demo {
+            background-color: #F5F7FA;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #E4E7ED;
+        }
+        
+        .component-description {
+            color: var(--text-light);
+            margin: 1rem 0;
+        }
+        
+        /* 记账表单样式 */
+        .record-form {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .amount-input {
+            border: none;
+            outline: none;
+            font-size: 2rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+        
+        .type-selector {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+        
+        .type-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-light);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .type-btn.active {
+            color: var(--primary-color);
+        }
+        
+        .type-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .type-btn.expense.active {
+            color: var(--danger-color);
+        }
+        
+        .type-btn.expense.active::after {
+            background-color: var(--danger-color);
+        }
+        
+        .type-btn.income.active {
+            color: var(--success-color);
+        }
+        
+        .type-btn.income.active::after {
+            background-color: var(--success-color);
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            border-radius: 8px;
+            background-color: #F5F7FA;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-item.active {
+            background-color: rgba(64, 158, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .category-item.expense.active {
+            background-color: rgba(245, 108, 108, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .category-item.income.active {
+            background-color: rgba(103, 194, 58, 0.1);
+            color: var(--success-color);
+        }
+        
+        .category-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-name {
+            font-size: 0.8rem;
+        }
+        
+        /* 统计卡片样式 */
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        /* 分类选择器样式 */
+        .category-selector {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 账户卡片样式 */
+        .account-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .account-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .account-type {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            padding: 0.2rem 0.6rem;
+            background-color: #F5F7FA;
+            border-radius: 12px;
+        }
+        
+        .account-balance {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        /* 收支记录项样式 */
+        .record-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .record-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .record-category {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: rgba(245, 108, 108, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .record-category.income {
+            background-color: rgba(103, 194, 58, 0.1);
+        }
+        
+        .record-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .record-title {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .record-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .record-amount {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .record-amount.expense {
+            color: var(--danger-color);
+        }
+        
+        .record-amount.income {
+            color: var(--success-color);
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #66B1FF;
+            border-color: #66B1FF;
+        }
+        
+        /* 输入框样式 */
+        .form-control {
+            border-radius: 6px;
+            border: 1px solid #DCDFE6;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(64, 158, 255, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>墨唐家庭记账 - 业务组件库</h1>
+        
+        <!-- 记账表单组件 -->
+        <div class="component-section">
+            <h2>1. 记账表单组件</h2>
+            <div class="component-description">
+                提供快速记账组件和完整记账表单，支持支出、收入和转账三种类型。
+            </div>
+            
+            <h3>1.1 快速记账组件</h3>
+            <div class="component-demo">
+                <div class="record-form">
+                    <input type="number" class="amount-input" placeholder="0.00" step="0.01">
+                    
+                    <div class="type-selector">
+                        <button class="type-btn expense active" data-type="expense">支出</button>
+                        <button class="type-btn income" data-type="income">收入</button>
+                        <button class="type-btn transfer" data-type="transfer">转账</button>
+                    </div>
+                    
+                    <div class="category-grid">
+                        <div class="category-item expense active" data-category="food">
+                            <div class="category-icon">🍚</div>
+                            <div class="category-name">餐饮</div>
+                        </div>
+                        <div class="category-item expense" data-category="transport">
+                            <div class="category-icon">🚗</div>
+                            <div class="category-name">交通</div>
+                        </div>
+                        <div class="category-item expense" data-category="shopping">
+                            <div class="category-icon">🛍️</div>
+                            <div class="category-name">购物</div>
+                        </div>
+                        <div class="category-item expense" data-category="entertainment">
+                            <div class="category-icon">🎬</div>
+                            <div class="category-name">娱乐</div>
+                        </div>
+                        <div class="category-item expense" data-category="utilities">
+                            <div class="category-icon">💡</div>
+                            <div class="category-name">水电</div>
+                        </div>
+                        <div class="category-item expense" data-category="medical">
+                            <div class="category-icon">🏥</div>
+                            <div class="category-name">医疗</div>
+                        </div>
+                        <div class="category-item expense" data-category="education">
+                            <div class="category-icon">📚</div>
+                            <div class="category-name">教育</div>
+                        </div>
+                        <div class="category-item expense" data-category="other">
+                            <div class="category-icon">📝</div>
+                            <div class="category-name">其他</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100">保存</button>
+                </div>
+            </div>
+            
+            <h3>1.2 完整记账表单</h3>
+            <div class="component-demo">
+                <div class="record-form">
+                    <div class="mb-3">
+                        <label for="fullAmount" class="form-label">金额</label>
+                        <input type="number" class="form-control" id="fullAmount" placeholder="请输入金额" step="0.01">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fullCategory" class="form-label">分类</label>
+                        <select class="form-control" id="fullCategory">
+                            <option>请选择分类</option>
+                            <option>餐饮</option>
+                            <option>交通</option>
+                            <option>购物</option>
+                            <option>娱乐</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fullAccount" class="form-label">账户</label>
+                        <select class="form-control" id="fullAccount">
+                            <option>请选择账户</option>
+                            <option>现金</option>
+                            <option>银行卡</option>
+                            <option>微信</option>
+                            <option>支付宝</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="fullDate" class="form-label">日期</label>
+                            <input type="date" class="form-control" id="fullDate" value="2025-11-27">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fullTime" class="form-label">时间</label>
+                            <input type="time" class="form-control" id="fullTime" value="14:30">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="fullNote" class="form-label">备注</label>
+                        <textarea class="form-control" id="fullNote" rows="3" placeholder="添加备注"></textarea>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary flex-1">保存</button>
+                        <button class="btn btn-outline-secondary flex-1">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计卡片组件 -->
+        <div class="component-section">
+            <h2>2. 统计卡片组件</h2>
+            <div class="component-description">
+                提供收支统计和余额统计卡片，展示总收入、总支出和结余信息。
+            </div>
+            
+            <div class="component-demo">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--success-color);">¥12,345.67</div>
+                            <div class="stat-label">总收入</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--danger-color);">¥8,901.23</div>
+                            <div class="stat-label">总支出</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: var(--primary-color);">¥3,444.44</div>
+                            <div class="stat-label">结余</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 分类选择器组件 -->
+        <div class="component-section">
+            <h2>3. 分类选择器组件</h2>
+            <div class="component-description">
+                带图标和颜色的分类选择器，支持支出和收入分类。
+            </div>
+            
+            <div class="component-demo">
+                <div class="category-selector">
+                    <div class="category-grid">
+                        <div class="category-item expense" data-category="food">
+                            <div class="category-icon">🍚</div>
+                            <div class="category-name">餐饮</div>
+                        </div>
+                        <div class="category-item expense" data-category="transport">
+                            <div class="category-icon">🚗</div>
+                            <div class="category-name">交通</div>
+                        </div>
+                        <div class="category-item expense" data-category="shopping">
+                            <div class="category-icon">🛍️</div>
+                            <div class="category-name">购物</div>
+                        </div>
+                        <div class="category-item expense" data-category="entertainment">
+                            <div class="category-icon">🎬</div>
+                            <div class="category-name">娱乐</div>
+                        </div>
+                        <div class="category-item income" data-category="salary">
+                            <div class="category-icon">💰</div>
+                            <div class="category-name">工资</div>
+                        </div>
+                        <div class="category-item income" data-category="bonus">
+                            <div class="category-icon">🎁</div>
+                            <div class="category-name">奖金</div>
+                        </div>
+                        <div class="category-item income" data-category="investment">
+                            <div class="category-icon">💸</div>
+                            <div class="category-name">理财</div>
+                        </div>
+                        <div class="category-item income" data-category="other">
+                            <div class="category-icon">📝</div>
+                            <div class="category-name">其他</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 账户卡片组件 -->
+        <div class="component-section">
+            <h2>4. 账户卡片组件</h2>
+            <div class="component-description">
+                显示账户余额和类型的卡片组件，支持多种账户类型。
+            </div>
+            
+            <div class="component-demo">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="account-card">
+                            <div class="account-header">
+                                <div class="account-name">现金</div>
+                                <div class="account-type">现金账户</div>
+                            </div>
+                            <div class="account-balance">¥1,234.56</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="account-card">
+                            <div class="account-header">
+                                <div class="account-name">银行卡</div>
+                                <div class="account-type">储蓄账户</div>
+                            </div>
+                            <div class="account-balance">¥5,678.90</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="account-card">
+                            <div class="account-header">
+                                <div class="account-name">微信</div>
+                                <div class="account-type">第三方支付</div>
+                            </div>
+                            <div class="account-balance">¥3,456.78</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 收支记录项组件 -->
+        <div class="component-section">
+            <h2>5. 收支记录项组件</h2>
+            <div class="component-description">
+                列表形式的收支记录展示，包含分类、金额、日期等信息。
+            </div>
+            
+            <div class="component-demo">
+                <div class="record-item">
+                    <div class="record-left">
+                        <div class="record-category">🍚</div>
+                        <div class="record-info">
+                            <div class="record-title">餐饮</div>
+                            <div class="record-date">2025-11-27 14:30</div>
+                        </div>
+                    </div>
+                    <div class="record-amount expense">-¥128.50</div>
+                </div>
+                
+                <div class="record-item">
+                    <div class="record-left">
+                        <div class="record-category income">💰</div>
+                        <div class="record-info">
+                            <div class="record-title">工资</div>
+                            <div class="record-date">2025-11-26 09:00</div>
+                        </div>
+                    </div>
+                    <div class="record-amount income">+¥8,000.00</div>
+                </div>
+                
+                <div class="record-item">
+                    <div class="record-left">
+                        <div class="record-category">🚗</div>
+                        <div class="record-info">
+                            <div class="record-title">交通</div>
+                            <div class="record-date">2025-11-25 18:30</div>
+                        </div>
+                    </div>
+                    <div class="record-amount expense">-¥45.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 类型切换
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有活跃状态
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前活跃状态
+                this.classList.add('active');
+            });
+        });
+        
+        // 分类选择
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有活跃状态
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                // 添加当前活跃状态
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

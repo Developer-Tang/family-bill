@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 记账</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .record-form {
+            background-color: white;
+            margin: 1rem;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .amount-section {
+            margin-bottom: 2rem;
+        }
+        
+        .amount-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .amount-input {
+            border: none;
+            outline: none;
+            font-size: 3rem;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            padding: 0;
+        }
+        
+        .amount-input::placeholder {
+            color: #C0C4CC;
+        }
+        
+        .type-selector {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #E4E7ED;
+        }
+        
+        .type-btn {
+            flex: 1;
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-light);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .type-btn.active {
+            color: var(--primary-color);
+        }
+        
+        .type-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .type-btn.expense.active {
+            color: var(--danger-color);
+        }
+        
+        .type-btn.expense.active::after {
+            background-color: var(--danger-color);
+        }
+        
+        .type-btn.income.active {
+            color: var(--success-color);
+        }
+        
+        .type-btn.income.active::after {
+            background-color: var(--success-color);
+        }
+        
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            border-radius: 8px;
+            background-color: #F5F7FA;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-item.active {
+            background-color: rgba(64, 158, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .category-item.expense.active {
+            background-color: rgba(245, 108, 108, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .category-item.income.active {
+            background-color: rgba(103, 194, 58, 0.1);
+            color: var(--success-color);
+        }
+        
+        .category-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .category-name {
+            font-size: 0.8rem;
+        }
+        
+        .account-selector {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .account-item {
+            flex: 0 0 auto;
+            width: 100px;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #F5F7FA;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .account-item.active {
+            background-color: rgba(64, 158, 255, 0.1);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .account-name {
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .account-balance {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-col {
+            flex: 1;
+        }
+        
+        .form-control {
+            border: 1px solid #DCDFE6;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(64, 158, 255, 0.25);
+            outline: none;
+        }
+        
+        .note-input {
+            resize: none;
+            min-height: 100px;
+        }
+        
+        .tags-section {
+            margin-bottom: 2rem;
+        }
+        
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.4rem 0.8rem;
+            border-radius: 16px;
+            background-color: #F5F7FA;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tag.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .save-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .save-btn:hover {
+            background-color: #66B1FF;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">取消</button>
+        <h1 class="header-title">记一笔</h1>
+        <button class="btn-text" id="saveBtn">保存</button>
+    </div>
+    
+    <div class="record-form">
+        <!-- 金额输入 -->
+        <div class="amount-section">
+            <div class="amount-label">金额</div>
+            <input type="number" class="amount-input" id="amount" placeholder="0.00" step="0.01" required>
+        </div>
+        
+        <!-- 收支类型选择 -->
+        <div class="type-selector">
+            <button class="type-btn expense active" data-type="expense">支出</button>
+            <button class="type-btn income" data-type="income">收入</button>
+            <button class="type-btn transfer" data-type="transfer">转账</button>
+        </div>
+        
+        <!-- 分类选择 -->
+        <div class="form-section">
+            <div class="section-label">分类</div>
+            <div class="category-grid" id="categoryGrid">
+                <!-- 支出分类 -->
+                <div class="category-item expense active" data-category="food">
+                    <div class="category-icon">🍚</div>
+                    <div class="category-name">餐饮</div>
+                </div>
+                <div class="category-item expense" data-category="transport">
+                    <div class="category-icon">🚗</div>
+                    <div class="category-name">交通</div>
+                </div>
+                <div class="category-item expense" data-category="shopping">
+                    <div class="category-icon">🛍️</div>
+                    <div class="category-name">购物</div>
+                </div>
+                <div class="category-item expense" data-category="entertainment">
+                    <div class="category-icon">🎬</div>
+                    <div class="category-name">娱乐</div>
+                </div>
+                <div class="category-item expense" data-category="utilities">
+                    <div class="category-icon">💡</div>
+                    <div class="category-name">水电</div>
+                </div>
+                <div class="category-item expense" data-category="medical">
+                    <div class="category-icon">🏥</div>
+                    <div class="category-name">医疗</div>
+                </div>
+                <div class="category-item expense" data-category="education">
+                    <div class="category-icon">📚</div>
+                    <div class="category-name">教育</div>
+                </div>
+                <div class="category-item expense" data-category="other">
+                    <div class="category-icon">📝</div>
+                    <div class="category-name">其他</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 账户选择 -->
+        <div class="form-section">
+            <div class="section-label">账户</div>
+            <div class="account-selector">
+                <div class="account-item active">
+                    <div class="account-name">现金</div>
+                    <div class="account-balance">¥1,234.56</div>
+                </div>
+                <div class="account-item">
+                    <div class="account-name">银行卡</div>
+                    <div class="account-balance">¥5,678.90</div>
+                </div>
+                <div class="account-item">
+                    <div class="account-name">微信</div>
+                    <div class="account-balance">¥3,456.78</div>
+                </div>
+                <div class="account-item">
+                    <div class="account-name">支付宝</div>
+                    <div class="account-balance">¥7,890.12</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 日期和时间 -->
+        <div class="form-row">
+            <div class="form-col">
+                <div class="section-label">日期</div>
+                <input type="date" class="form-control" id="date" value="2025-11-27">
+            </div>
+            <div class="form-col">
+                <div class="section-label">时间</div>
+                <input type="time" class="form-control" id="time" value="14:30">
+            </div>
+        </div>
+        
+        <!-- 备注 -->
+        <div class="form-section">
+            <div class="section-label">备注</div>
+            <textarea class="form-control note-input" id="note" placeholder="添加备注"></textarea>
+        </div>
+        
+        <!-- 标签 -->
+        <div class="tags-section">
+            <div class="section-label">标签</div>
+            <div class="tags-container">
+                <div class="tag">家庭</div>
+                <div class="tag active">个人</div>
+                <div class="tag">工作</div>
+                <div class="tag">生活</div>
+                <div class="tag">娱乐</div>
+                <div class="tag">购物</div>
+                <div class="tag">餐饮</div>
+                <div class="tag">交通</div>
+            </div>
+        </div>
+        
+        <!-- 保存按钮 -->
+        <button class="save-btn" id="saveBtn2">保存</button>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-text">首页</div>
+        </a>
+        <a href="add-record.html" class="nav-item active">
+            <div class="nav-icon">➕</div>
+            <div class="nav-text">记账</div>
+        </a>
+        <a href="statistics.html" class="nav-item">
+            <div class="nav-icon">📊</div>
+            <div class="nav-text">统计</div>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <div class="nav-icon">👤</div>
+            <div class="nav-text">我的</div>
+        </a>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 收入分类数据
+        const incomeCategories = [
+            { icon: '💰', name: '工资', category: 'salary' },
+            { icon: '🎁', name: '奖金', category: 'bonus' },
+            { icon: '💸', name: '理财', category: 'investment' },
+            { icon: '🎯', name: '兼职', category: 'part-time' },
+            { icon: '🏠', name: '房租', category: 'rent' },
+            { icon: '🎊', name: '礼金', category: 'gift' },
+            { icon: '📦', name: '退款', category: 'refund' },
+            { icon: '📝', name: '其他', category: 'other' }
+        ];
+        
+        // 支出分类数据
+        const expenseCategories = [
+            { icon: '🍚', name: '餐饮', category: 'food' },
+            { icon: '🚗', name: '交通', category: 'transport' },
+            { icon: '🛍️', name: '购物', category: 'shopping' },
+            { icon: '🎬', name: '娱乐', category: 'entertainment' },
+            { icon: '💡', name: '水电', category: 'utilities' },
+            { icon: '🏥', name: '医疗', category: 'medical' },
+            { icon: '📚', name: '教育', category: 'education' },
+            { icon: '📝', name: '其他', category: 'other' }
+        ];
+        
+        // 转账分类数据
+        const transferCategories = [
+            { icon: '🔄', name: '转账', category: 'transfer' },
+            { icon: '💳', name: '还款', category: 'repayment' },
+            { icon: '📤', name: '转出', category: 'transfer-out' },
+            { icon: '📥', name: '转入', category: 'transfer-in' }
+        ];
+        
+        // 收支类型切换
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有活跃状态
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前活跃状态
+                this.classList.add('active');
+                
+                // 更新分类列表
+                const type = this.dataset.type;
+                updateCategoryGrid(type);
+            });
+        });
+        
+        // 更新分类网格
+        function updateCategoryGrid(type) {
+            const categoryGrid = document.getElementById('categoryGrid');
+            let categories = [];
+            
+            switch(type) {
+                case 'income':
+                    categories = incomeCategories;
+                    break;
+                case 'transfer':
+                    categories = transferCategories;
+                    break;
+                default:
+                    categories = expenseCategories;
+            }
+            
+            // 清空当前分类
+            categoryGrid.innerHTML = '';
+            
+            // 添加新分类
+            categories.forEach(category => {
+                const categoryItem = document.createElement('div');
+                categoryItem.className = `category-item ${type}`;
+                categoryItem.dataset.category = category.category;
+                categoryItem.innerHTML = `
+                    <div class="category-icon">${category.icon}</div>
+                    <div class="category-name">${category.name}</div>
+                `;
+                
+                // 添加点击事件
+                categoryItem.addEventListener('click', function() {
+                    // 移除所有活跃状态
+                    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
+                    // 添加当前活跃状态
+                    this.classList.add('active');
+                });
+                
+                categoryGrid.appendChild(categoryItem);
+            });
+        }
+        
+        // 分类选择
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有活跃状态
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                // 添加当前活跃状态
+                this.classList.add('active');
+            });
+        });
+        
+        // 账户选择
+        document.querySelectorAll('.account-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有活跃状态
+                document.querySelectorAll('.account-item').forEach(i => i.classList.remove('active'));
+                // 添加当前活跃状态
+                this.classList.add('active');
+            });
+        });
+        
+        // 标签选择
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+        
+        // 保存按钮点击事件
+        document.getElementById('saveBtn').addEventListener('click', saveRecord);
+        document.getElementById('saveBtn2').addEventListener('click', saveRecord);
+        
+        function saveRecord() {
+            // 模拟保存记录
+            alert('记账成功');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

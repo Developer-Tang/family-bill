@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 预算管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .date-selector {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .date-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #DCDFE6;
+            border-radius: 20px;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .date-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .budget-list {
+            padding: 1rem;
+        }
+        
+        .budget-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-right: 5rem;
+        }
+        
+        .budget-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .budget-amount {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .budget-progress {
+            margin: 0.5rem 0;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #F0F2F5;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-bar.danger {
+            background-color: var(--danger-color);
+        }
+        
+        .progress-bar.success {
+            background-color: var(--success-color);
+        }
+        
+        .budget-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .used-amount {
+            color: var(--danger-color);
+        }
+        
+        .remaining-amount {
+            color: var(--success-color);
+        }
+        
+        .budget-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1rem;
+            padding: 0.5rem 0.25rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #F5F7FA;
+            color: var(--text-color);
+        }
+        
+        .add-budget-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        
+        .add-budget-btn:hover {
+            background-color: #66B1FF;
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">返回</button>
+        <h1 class="header-title">预算管理</h1>
+        <button class="btn-text">筛选</button>
+    </div>
+    
+    <div class="date-selector">
+        <div class="date-range">
+            <button class="date-btn active">本月</button>
+            <button class="date-btn">下月</button>
+            <button class="date-btn">本年</button>
+        </div>
+        <div class="custom-date">
+            <span>自定义</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+        </div>
+    </div>
+    
+    <div class="budget-list">
+        <!-- 总预算 -->
+        <div class="budget-item">
+            <div class="budget-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+            </div>
+            <div class="budget-header">
+                <div class="budget-name">总预算</div>
+                <div class="budget-amount">¥5,000.00</div>
+            </div>
+            <div class="budget-progress">
+                <div class="progress">
+                    <div class="progress-bar" style="width: 60%"></div>
+                </div>
+            </div>
+            <div class="budget-detail">
+                <div>已使用 <span class="used-amount">¥3,000.00</span></div>
+                <div>剩余 <span class="remaining-amount">¥2,000.00</span></div>
+            </div>
+        </div>
+        
+        <!-- 餐饮预算 -->
+        <div class="budget-item">
+            <div class="budget-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="budget-header">
+                <div class="budget-name">餐饮</div>
+                <div class="budget-amount">¥2,000.00</div>
+            </div>
+            <div class="budget-progress">
+                <div class="progress">
+                    <div class="progress-bar danger" style="width: 85%"></div>
+                </div>
+            </div>
+            <div class="budget-detail">
+                <div>已使用 <span class="used-amount">¥1,700.00</span></div>
+                <div>剩余 <span class="remaining-amount">¥300.00</span></div>
+            </div>
+        </div>
+        
+        <!-- 交通预算 -->
+        <div class="budget-item">
+            <div class="budget-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="budget-header">
+                <div class="budget-name">交通</div>
+                <div class="budget-amount">¥800.00</div>
+            </div>
+            <div class="budget-progress">
+                <div class="progress">
+                    <div class="progress-bar" style="width: 45%"></div>
+                </div>
+            </div>
+            <div class="budget-detail">
+                <div>已使用 <span class="used-amount">¥360.00</span></div>
+                <div>剩余 <span class="remaining-amount">¥440.00</span></div>
+            </div>
+        </div>
+        
+        <!-- 购物预算 -->
+        <div class="budget-item">
+            <div class="budget-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="budget-header">
+                <div class="budget-name">购物</div>
+                <div class="budget-amount">¥1,500.00</div>
+            </div>
+            <div class="budget-progress">
+                <div class="progress">
+                    <div class="progress-bar success" style="width: 30%"></div>
+                </div>
+            </div>
+            <div class="budget-detail">
+                <div>已使用 <span class="used-amount">¥450.00</span></div>
+                <div>剩余 <span class="remaining-amount">¥1,050.00</span></div>
+            </div>
+        </div>
+        
+        <!-- 娱乐预算 -->
+        <div class="budget-item">
+            <div class="budget-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="budget-header">
+                <div class="budget-name">娱乐</div>
+                <div class="budget-amount">¥700.00</div>
+            </div>
+            <div class="budget-progress">
+                <div class="progress">
+                    <div class="progress-bar" style="width: 50%"></div>
+                </div>
+            </div>
+            <div class="budget-detail">
+                <div>已使用 <span class="used-amount">¥350.00</span></div>
+                <div>剩余 <span class="remaining-amount">¥350.00</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加预算按钮 -->
+    <button class="add-budget-btn" title="添加预算">➕</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 日期范围切换
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有按钮的活跃状态
+                document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前按钮的活跃状态
+                this.classList.add('active');
+            });
+        });
+        
+        // 添加预算按钮点击事件
+        document.querySelector('.add-budget-btn').addEventListener('click', function() {
+            alert('添加预算功能开发中');
+        });
+        
+        // 编辑和删除按钮点击事件
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '✏️') {
+                    alert('编辑预算功能开发中');
+                } else if (this.textContent === '🗑️') {
+                    if (confirm('确定要删除这个预算吗？')) {
+                        alert('删除预算功能开发中');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

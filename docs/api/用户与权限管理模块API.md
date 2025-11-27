@@ -2,6 +2,24 @@
 
 用户与权限管理模块是系统的基础安全组件，负责用户身份认证、权限控制和安全审计，确保系统数据安全和精细化访问管理。本模块提供完整的用户生命周期管理、家庭组协作、账本权限控制等功能的标准化API接口。
 
+### 设计原则
+
+1. **RESTful规范**：所有API接口严格遵循RESTful设计规范，使用标准HTTP方法和资源导向的URL路径
+2. **本地缓存优先**：暂不集成远程缓存机制，如需使用缓存功能，严格限定为本地缓存方案
+3. **完整的请求验证**：所有API接口包含严格的请求参数验证，确保数据完整性和安全性
+4. **统一的错误处理**：采用统一的错误响应格式和错误码体系，便于客户端处理
+5. **清晰的响应格式**：所有API响应采用标准JSON格式，包含明确的数据结构和状态信息
+6. **可扩展性**：API设计考虑未来功能扩展，预留合理的扩展点
+
+### 适用场景
+
+- 用户需要注册、登录和管理个人账号
+- 用户需要创建和管理家庭记账群组
+- 用户需要邀请家庭成员加入记账群组
+- 用户需要设置不同成员的账本访问权限
+- 用户需要管理个人信息和安全设置
+- 管理员需要审计用户操作日志
+
 ## 接口清单
 
 <!-- tabs:start -->
@@ -63,8 +81,17 @@
 
 **功能描述**：用户注册新账号
 
-**请求参数**
+**请求方法**：POST
+**URL路径**：/api/v1/users/register
+**权限要求**：无
+**限流策略**：每分钟60次
 
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+
+**请求参数**
 | 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
 |--------|------|------|--------|------|----------|
 | username | string | 是 | - | 用户名 | 3-20个字符，支持字母、数字、下划线 |
@@ -74,8 +101,7 @@
 | confirm_password | string | 是 | - | 确认密码 | 与password一致 |
 | verification_code | string | 否 | - | 验证码 | 6位数字，当使用手机号注册时必填 |
 
-**请求**
-
+**请求示例**
 ```http
 POST /api/v1/users/register
 Content-Type: application/json
@@ -90,8 +116,19 @@ Content-Type: application/json
 }
 ```
 
-**成功响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 用户注册成功信息 |
+| data.user_id | integer | 用户ID |
+| data.username | string | 用户名 |
+| data.email | string | 用户邮箱 |
+| data.phone | string | 用户手机号（脱敏） |
+| data.token | string | 认证令牌 |
 
+**成功响应示例**
 ```json
 {
   "code": 200,
@@ -120,8 +157,17 @@ Content-Type: application/json
 
 **功能描述**：用户登录系统
 
-**请求参数**
+**请求方法**：POST
+**URL路径**：/api/v1/users/login
+**权限要求**：无
+**限流策略**：每分钟60次
 
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+
+**请求参数**
 | 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
 |--------|------|------|--------|------|----------|
 | account | string | 是 | - | 账号 | 邮箱或手机号 |
@@ -129,8 +175,7 @@ Content-Type: application/json
 | login_type | string | 是 | "password" | 登录类型 | 枚举值：password, verification_code, third_party |
 | third_party_info | object | 否 | null | 第三方登录信息 | 当login_type为third_party时必填 |
 
-**请求**
-
+**请求示例**
 ```http
 POST /api/v1/users/login
 Content-Type: application/json
@@ -143,8 +188,19 @@ Content-Type: application/json
 }
 ```
 
-**成功响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 登录成功信息 |
+| data.user_id | integer | 用户ID |
+| data.username | string | 用户名 |
+| data.token | string | 访问令牌 |
+| data.refresh_token | string | 刷新令牌 |
+| data.expires_in | integer | 令牌过期时间（秒） |
 
+**成功响应示例**
 ```json
 {
   "code": 200,
@@ -173,16 +229,25 @@ Content-Type: application/json
 
 **功能描述**：创建新的家庭组
 
-**请求参数**
+**请求方法**：POST
+**URL路径**：/api/v1/families
+**权限要求**：已登录用户
+**限流策略**：每分钟60次
 
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**请求参数**
 | 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
 |--------|------|------|--------|------|----------|
 | name | string | 是 | - | 家庭组名称 | 1-20个字符 |
 | description | string | 否 | "" | 家庭组描述 | 0-100个字符 |
 | avatar | string | 否 | "" | 家庭组头像 | base64编码的图片 |
 
-**请求**
-
+**请求示例**
 ```http
 POST /api/v1/families
 Content-Type: application/json
@@ -195,8 +260,19 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**成功响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 家庭组创建结果 |
+| data.family_id | integer | 家庭组ID |
+| data.name | string | 家庭组名称 |
+| data.description | string | 家庭组描述 |
+| data.created_at | string | 创建时间 |
+| data.members_count | integer | 成员数量 |
 
+**成功响应示例**
 ```json
 {
   "code": 200,
@@ -225,8 +301,18 @@ Authorization: Bearer jwt_token_string
 
 **功能描述**：创建新的账本
 
-**请求参数**
+**请求方法**：POST
+**URL路径**：/api/v1/books
+**权限要求**：家庭组成员
+**限流策略**：每分钟60次
 
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**请求参数**
 | 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
 |--------|------|------|--------|------|----------|
 | family_id | integer | 是 | - | 家庭组ID | 正整数 |
@@ -236,8 +322,7 @@ Authorization: Bearer jwt_token_string
 | start_date | string | 是 | - | 开始日期 | YYYY-MM-DD格式 |
 | end_date | string | 否 | null | 结束日期 | YYYY-MM-DD格式，永久账本为null |
 
-**请求**
-
+**请求示例**
 ```http
 POST /api/v1/books
 Content-Type: application/json
@@ -253,8 +338,22 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**成功响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 账本创建结果 |
+| data.book_id | integer | 账本ID |
+| data.family_id | integer | 家庭组ID |
+| data.name | string | 账本名称 |
+| data.description | string | 账本描述 |
+| data.currency | string | 货币类型 |
+| data.start_date | string | 开始日期 |
+| data.end_date | string | 结束日期 |
+| data.created_at | string | 创建时间 |
 
+**成功响应示例**
 ```json
 {
   "code": 200,
@@ -282,17 +381,30 @@ Authorization: Bearer jwt_token_string
 
 **功能描述**：设置账本成员的权限
 
-**请求参数**
+**请求方法**：PUT
+**URL路径**：/api/v1/books/:id/permissions/:userId
+**权限要求**：账本管理员
+**限流策略**：每分钟60次
 
+**请求头**
+| 头部名称 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| Content-Type | string | 是 | 固定为application/json |
+| Authorization | string | 是 | Bearer JWT令牌 |
+
+**URL参数**
+| 参数名 | 类型 | 必填 | 描述 |
+|--------|------|------|------|
+| id | integer | 是 | 账本ID |
+| userId | integer | 是 | 用户ID |
+
+**请求参数**
 | 参数名 | 类型 | 必填 | 默认值 | 描述 | 验证规则 |
 |--------|------|------|--------|------|----------|
-| id | integer | 是 | - | 账本ID | 正整数 |
-| userId | integer | 是 | - | 用户ID | 正整数 |
 | role_id | integer | 是 | - | 角色ID | 1:管理员, 2:记账人, 3:查账人 |
 | permissions | array | 否 | - | 权限列表 | 权限字符串数组，当role_id为自定义角色时必填 |
 
-**请求**
-
+**请求示例**
 ```http
 PUT /api/v1/books/:id/permissions/:userId
 Content-Type: application/json
@@ -309,8 +421,19 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**成功响应**
+**响应数据结构**
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| code | integer | 响应状态码 |
+| message | string | 响应消息 |
+| data | object | 权限设置结果 |
+| data.book_id | integer | 账本ID |
+| data.user_id | integer | 用户ID |
+| data.role_id | integer | 角色ID |
+| data.role_name | string | 角色名称 |
+| data.permissions | array | 权限列表 |
 
+**成功响应示例**
 ```json
 {
   "code": 200,
@@ -325,8 +448,7 @@ Authorization: Bearer jwt_token_string
 }
 ```
 
-**错误响应**
-
+**错误响应示例**
 ```json
 {
   "code": 403,

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 成员管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .member-list {
+            padding: 1rem;
+        }
+        
+        .member-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .member-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .member-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .member-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .member-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .member-role {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .role-badge {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            background-color: rgba(64, 158, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .role-badge.admin {
+            background-color: rgba(245, 108, 108, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .role-badge.member {
+            background-color: rgba(103, 194, 58, 0.1);
+            color: var(--success-color);
+        }
+        
+        .member-actions {
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #F5F7FA;
+            color: var(--text-color);
+        }
+        
+        .add-member-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        
+        .add-member-btn:hover {
+            background-color: #66B1FF;
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">返回</button>
+        <h1 class="header-title">成员管理</h1>
+        <button class="btn-text">邀请</button>
+    </div>
+    
+    <div class="member-list">
+        <!-- 管理员成员 -->
+        <div class="member-item">
+            <div class="member-left">
+                <div class="member-avatar">U</div>
+                <div class="member-info">
+                    <div class="member-name">用户名</div>
+                    <div class="member-role">管理员</div>
+                </div>
+            </div>
+            <div class="member-actions">
+                <span class="role-badge admin">管理员</span>
+            </div>
+        </div>
+        
+        <!-- 普通成员 -->
+        <div class="member-item">
+            <div class="member-left">
+                <div class="member-avatar">F</div>
+                <div class="member-info">
+                    <div class="member-name">家人1</div>
+                    <div class="member-role">家庭成员</div>
+                </div>
+            </div>
+            <div class="member-actions">
+                <span class="role-badge member">成员</span>
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="member-item">
+            <div class="member-left">
+                <div class="member-avatar">F</div>
+                <div class="member-info">
+                    <div class="member-name">家人2</div>
+                    <div class="member-role">家庭成员</div>
+                </div>
+            </div>
+            <div class="member-actions">
+                <span class="role-badge member">成员</span>
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+        
+        <div class="member-item">
+            <div class="member-left">
+                <div class="member-avatar">F</div>
+                <div class="member-info">
+                    <div class="member-name">家人3</div>
+                    <div class="member-role">家庭成员</div>
+                </div>
+            </div>
+            <div class="member-actions">
+                <span class="role-badge member">成员</span>
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加成员按钮 -->
+    <button class="add-member-btn" title="添加成员">➕</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 添加成员按钮点击事件
+        document.querySelector('.add-member-btn').addEventListener('click', function() {
+            alert('添加成员功能开发中');
+        });
+        
+        // 编辑和删除按钮点击事件
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '✏️') {
+                    alert('编辑成员功能开发中');
+                } else if (this.textContent === '🗑️') {
+                    if (confirm('确定要删除这个成员吗？')) {
+                        alert('删除成员功能开发中');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 账户管理</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        /* 侧边栏样式 */
+        .sidebar {
+            background-color: white;
+            height: 100vh;
+            width: 16.6667%;
+            border-right: 1px solid #E4E7ED;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo h1 {
+            color: #409EFF;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #606266;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .nav-link.active {
+            color: #409EFF;
+            background-color: #ECF5FF;
+            border-right: 3px solid #409EFF;
+        }
+        /* 顶部导航栏样式 */
+        .top-nav {
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 16.6667%; /* 对应col-md-2的宽度 */
+            z-index: 999;
+        }
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+        .breadcrumb-item {
+            color: #909399;
+        }
+        .breadcrumb-item.active {
+            color: #303133;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+        }
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+        }
+        .menu-toggle {
+            margin-right: 20px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #606266;
+        }
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .user-info {
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        /* 主内容区样式 */
+        .main-content {
+            padding: 20px;
+            margin-top: 60px; /* 为固定导航栏留出空间 */
+        }
+        /* 调整主内容容器的样式 */
+        .content-wrapper {
+            margin-left: 16.6667%; /* 为固定侧边栏留出空间 */
+        }
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        /* 统计卡片样式 */
+        .stats-section {
+            padding: 20px;
+        }
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .stats-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            background-color: #F5F7FA;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stats-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #303133;
+        }
+        .stats-label {
+            font-size: 14px;
+            color: #909399;
+        }
+        /* 账户列表样式 */
+        .accounts-section {
+            padding: 20px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h3 {
+            font-size: 16px;
+            margin: 0;
+            font-weight: bold;
+        }
+        /* 账户卡片样式 */
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .account-card {
+            padding: 20px;
+            border: 1px solid #E4E7ED;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .account-card:hover {
+            border-color: #409EFF;
+            box-shadow: 0 2px 12px rgba(64, 158, 255, 0.2);
+        }
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .account-info {
+            display: flex;
+            align-items: center;
+        }
+        .account-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        .account-cash {
+            background-color: #FEF0F0;
+            color: #F56C6C;
+        }
+        .account-alipay {
+            background-color: #E6F7FF;
+            color: #1890FF;
+        }
+        .account-wechat {
+            background-color: #F6FFED;
+            color: #52C41A;
+        }
+        .account-bank {
+            background-color: #FFF7E6;
+            color: #FAAD14;
+        }
+        .account-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #303133;
+        }
+        .account-type {
+            font-size: 12px;
+            color: #909399;
+        }
+        .account-balance {
+            font-size: 24px;
+            font-weight: bold;
+            color: #303133;
+            margin-bottom: 10px;
+        }
+        .account-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        /* 新增账户表单样式 */
+        .form-section {
+            padding: 20px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        /* 模态框样式 */
+        .modal-content {
+            border-radius: 8px;
+        }
+        /* 操作按钮样式 */
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 p-0">
+                <div class="sidebar">
+                    <div class="sidebar-logo">
+                        <h1>墨唐家庭记账</h1>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i> 仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="records.html">
+                                <i class="bi bi-journal-text me-2"></i> 收支记录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="accounts.html">
+                                <i class="bi bi-wallet2 me-2"></i> 账户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="categories.html">
+                                <i class="bi bi-tags me-2"></i> 分类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="statistics.html">
+                                <i class="bi bi-bar-chart-line me-2"></i> 统计分析
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="members.html">
+                                <i class="bi bi-people me-2"></i> 成员管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="settings.html">
+                                <i class="bi bi-gear me-2"></i> 系统设置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content-wrapper">
+                <!-- 顶部导航栏 -->
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <button class="menu-toggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">账户管理</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="user-info">
+                            <i class="bi bi-person-circle me-1"></i> 用户名
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 统计卡片 -->
+                    <div class="card stats-section">
+                        <div class="stats-row">
+                            <div class="stats-card">
+                                <div class="stats-value">¥15,800.00</div>
+                                <div class="stats-label">总余额</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="stats-value">4</div>
+                                <div class="stats-label">账户数量</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="stats-value">¥8,500.00</div>
+                                <div class="stats-label">本月流入</div>
+                            </div>
+                            <div class="stats-card">
+                                <div class="stats-value">¥6,200.00</div>
+                                <div class="stats-label">本月流出</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 账户列表 -->
+                    <div class="card accounts-section">
+                        <div class="section-header">
+                            <h3>我的账户</h3>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+                                <i class="bi bi-plus me-1"></i> 新增账户
+                            </button>
+                        </div>
+                        
+                        <div class="accounts-grid">
+                            <!-- 现金账户 -->
+                            <div class="account-card">
+                                <div class="account-header">
+                                    <div class="account-info">
+                                        <div class="account-icon account-cash">
+                                            <i class="bi bi-cash"></i>
+                                        </div>
+                                        <div>
+                                            <div class="account-name">现金</div>
+                                            <div class="account-type">现金账户</div>
+                                        </div>
+                                    </div>
+                                    <div class="account-actions">
+                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-balance">¥1,200.00</div>
+                                <div class="text-end" style="font-size: 12px; color: #909399;">
+                                    上次更新：2025-11-27
+                                </div>
+                            </div>
+                            
+                            <!-- 支付宝账户 -->
+                            <div class="account-card">
+                                <div class="account-header">
+                                    <div class="account-info">
+                                        <div class="account-icon account-alipay">
+                                            <i class="bi bi-alipay"></i>
+                                        </div>
+                                        <div>
+                                            <div class="account-name">支付宝</div>
+                                            <div class="account-type">第三方支付</div>
+                                        </div>
+                                    </div>
+                                    <div class="account-actions">
+                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-balance">¥3,500.00</div>
+                                <div class="text-end" style="font-size: 12px; color: #909399;">
+                                    上次更新：2025-11-27
+                                </div>
+                            </div>
+                            
+                            <!-- 微信账户 -->
+                            <div class="account-card">
+                                <div class="account-header">
+                                    <div class="account-info">
+                                        <div class="account-icon account-wechat">
+                                            <i class="bi bi-wechat"></i>
+                                        </div>
+                                        <div>
+                                            <div class="account-name">微信</div>
+                                            <div class="account-type">第三方支付</div>
+                                        </div>
+                                    </div>
+                                    <div class="account-actions">
+                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-balance">¥2,100.00</div>
+                                <div class="text-end" style="font-size: 12px; color: #909399;">
+                                    上次更新：2025-11-27
+                                </div>
+                            </div>
+                            
+                            <!-- 银行卡账户 -->
+                            <div class="account-card">
+                                <div class="account-header">
+                                    <div class="account-info">
+                                        <div class="account-icon account-bank">
+                                            <i class="bi bi-bank"></i>
+                                        </div>
+                                        <div>
+                                            <div class="account-name">银行卡</div>
+                                            <div class="account-type">银行账户</div>
+                                        </div>
+                                    </div>
+                                    <div class="account-actions">
+                                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="account-balance">¥9,000.00</div>
+                                <div class="text-end" style="font-size: 12px; color: #909399;">
+                                    上次更新：2025-11-27
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 新增账户模态框 -->
+    <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAccountModalLabel">新增账户</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">账户名称</label>
+                                <input type="text" class="form-control" placeholder="请输入账户名称">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">账户类型</label>
+                                <select class="form-select">
+                                    <option value="cash">现金</option>
+                                    <option value="alipay">支付宝</option>
+                                    <option value="wechat">微信</option>
+                                    <option value="bank">银行卡</option>
+                                    <option value="credit">信用卡</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">初始余额</label>
+                                <input type="number" class="form-control" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">币种</label>
+                                <select class="form-select">
+                                    <option value="CNY">人民币 (CNY)</option>
+                                    <option value="USD">美元 (USD)</option>
+                                    <option value="EUR">欧元 (EUR)</option>
+                                    <option value="JPY">日元 (JPY)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-control" rows="2" placeholder="添加备注信息"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 编辑账户模态框 -->
+    <div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAccountModalLabel">编辑账户</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">账户名称</label>
+                                <input type="text" class="form-control" value="现金">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">账户类型</label>
+                                <select class="form-select">
+                                    <option value="cash" selected>现金</option>
+                                    <option value="alipay">支付宝</option>
+                                    <option value="wechat">微信</option>
+                                    <option value="bank">银行卡</option>
+                                    <option value="credit">信用卡</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">当前余额</label>
+                                <input type="number" class="form-control" value="1200.00" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">币种</label>
+                                <select class="form-select">
+                                    <option value="CNY" selected>人民币 (CNY)</option>
+                                    <option value="USD">美元 (USD)</option>
+                                    <option value="EUR">欧元 (EUR)</option>
+                                    <option value="JPY">日元 (JPY)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-control" rows="2">日常现金收支</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

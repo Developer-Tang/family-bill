@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>墨唐家庭记账 - 账户管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #409EFF;
+            --success-color: #67C23A;
+            --danger-color: #F56C6C;
+            --text-color: #303133;
+            --text-light: #909399;
+            --bg-color: #F5F7FA;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #E4E7ED;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .btn-text:hover {
+            opacity: 0.8;
+        }
+        
+        .account-list {
+            padding: 1rem;
+        }
+        
+        .account-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-right: 5rem;
+        }
+        
+        .account-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .account-type {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            padding: 0.2rem 0.6rem;
+            background-color: #F5F7FA;
+            border-radius: 12px;
+        }
+        
+        .account-balance {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .account-detail {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .account-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #F5F7FA;
+            color: var(--text-color);
+        }
+        
+        .add-account-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        
+        .add-account-btn:hover {
+            background-color: #66B1FF;
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn-text" onclick="window.history.back()">返回</button>
+        <h1 class="header-title">账户管理</h1>
+        <button class="btn-text">筛选</button>
+    </div>
+    
+    <div class="account-list">
+        <!-- 现金账户 -->
+        <div class="account-card">
+            <div class="account-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="account-header">
+                <div class="account-name">现金</div>
+                <div class="account-type">现金账户</div>
+            </div>
+            <div class="account-balance">¥1,234.56</div>
+            <div class="account-detail">上次更新：2025-11-27 14:30</div>
+        </div>
+        
+        <!-- 银行卡账户 -->
+        <div class="account-card">
+            <div class="account-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="account-header">
+                <div class="account-name">银行卡</div>
+                <div class="account-type">储蓄账户</div>
+            </div>
+            <div class="account-balance">¥5,678.90</div>
+            <div class="account-detail">上次更新：2025-11-26 09:00</div>
+        </div>
+        
+        <!-- 微信账户 -->
+        <div class="account-card">
+            <div class="account-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="account-header">
+                <div class="account-name">微信</div>
+                <div class="account-type">第三方支付</div>
+            </div>
+            <div class="account-balance">¥3,456.78</div>
+            <div class="account-detail">上次更新：2025-11-25 18:30</div>
+        </div>
+        
+        <!-- 支付宝账户 -->
+        <div class="account-card">
+            <div class="account-actions">
+                <button class="action-btn" title="编辑">✏️</button>
+                <button class="action-btn" title="删除">🗑️</button>
+            </div>
+            <div class="account-header">
+                <div class="account-name">支付宝</div>
+                <div class="account-type">第三方支付</div>
+            </div>
+            <div class="account-balance">¥7,890.12</div>
+            <div class="account-detail">上次更新：2025-11-24 10:00</div>
+        </div>
+    </div>
+    
+    <!-- 添加账户按钮 -->
+    <button class="add-account-btn" title="添加账户">➕</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 添加账户按钮点击事件
+        document.querySelector('.add-account-btn').addEventListener('click', function() {
+            alert('添加账户功能开发中');
+        });
+        
+        // 编辑按钮点击事件
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '✏️') {
+                    alert('编辑账户功能开发中');
+                } else if (this.textContent === '🗑️') {
+                    if (confirm('确定要删除这个账户吗？')) {
+                        alert('删除账户功能开发中');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

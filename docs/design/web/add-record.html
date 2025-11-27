@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨唐家庭记账 - 新增收支记录</title>
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 自定义样式 -->
+    <style>
+        body {
+            background-color: #F5F7FA;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        /* 侧边栏样式 */
+        .sidebar {
+            background-color: white;
+            height: 100vh;
+            width: 16.6667%;
+            border-right: 1px solid #E4E7ED;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-logo h1 {
+            color: #409EFF;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: #606266;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .nav-link.active {
+            color: #409EFF;
+            background-color: #ECF5FF;
+            border-right: 3px solid #409EFF;
+        }
+        /* 顶部导航栏样式 */
+        .top-nav {
+            background-color: white;
+            border-bottom: 1px solid #E4E7ED;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 16.6667%; /* 对应col-md-2的宽度 */
+            z-index: 999;
+        }
+        /* 面包屑导航样式 */
+        .breadcrumb {
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+        }
+        .breadcrumb-item {
+            color: #909399;
+        }
+        .breadcrumb-item.active {
+            color: #303133;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+        }
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+        }
+        .menu-toggle {
+            margin-right: 20px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #606266;
+        }
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+        }
+        .user-info {
+            margin-right: 20px;
+            font-size: 14px;
+        }
+        /* 主内容区样式 */
+        .main-content {
+            padding: 20px;
+            margin-top: 60px; /* 为固定导航栏留出空间 */
+        }
+        /* 调整主内容容器的样式 */
+        .content-wrapper {
+            margin-left: 16.6667%; /* 为固定侧边栏留出空间 */
+        }
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        /* 表单样式 */
+        .form-section {
+            padding: 20px;
+        }
+        .form-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #303133;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        /* 收支类型切换 */
+        .type-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #DCDFE6;
+            background-color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            color: #606266;
+        }
+        .type-btn.active {
+            background-color: #ECF5FF;
+            border-color: #409EFF;
+            color: #409EFF;
+        }
+        /* 金额输入框 */
+        .amount-input {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            outline: none;
+            width: 100%;
+            margin: 20px 0;
+        }
+        /* 分类选择器 */
+        .category-section {
+            margin-bottom: 20px;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 1px solid #DCDFE6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .category-item:hover {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+        }
+        .category-item.active {
+            border-color: #409EFF;
+            background-color: #ECF5FF;
+            color: #409EFF;
+        }
+        .category-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .category-name {
+            font-size: 12px;
+        }
+        /* 标签选择器 */
+        .tags-section {
+            margin-bottom: 20px;
+        }
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tag-item {
+            padding: 5px 12px;
+            border: 1px solid #DCDFE6;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tag-item:hover {
+            border-color: #409EFF;
+        }
+        .tag-item.active {
+            background-color: #409EFF;
+            color: white;
+            border-color: #409EFF;
+        }
+        /* 操作按钮 */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        /* 转账专用字段 */
+        .transfer-fields {
+            display: none;
+        }
+        .transfer-fields.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-2 p-0">
+                <div class="sidebar">
+                    <div class="sidebar-logo">
+                        <h1>墨唐家庭记账</h1>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-house-door me-2"></i> 仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="records.html">
+                                <i class="bi bi-journal-text me-2"></i> 收支记录
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="accounts.html">
+                                <i class="bi bi-wallet2 me-2"></i> 账户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="categories.html">
+                                <i class="bi bi-tags me-2"></i> 分类管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="statistics.html">
+                                <i class="bi bi-bar-chart-line me-2"></i> 统计分析
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="members.html">
+                                <i class="bi bi-people me-2"></i> 成员管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="settings.html">
+                                <i class="bi bi-gear me-2"></i> 系统设置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="col-md-10 content-wrapper">
+                <!-- 顶部导航栏 -->
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <button class="menu-toggle">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="dashboard.html">首页</a></li>
+                                <li class="breadcrumb-item"><a href="records.html">收支记录</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">新增收支记录</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="user-info">
+                            <i class="bi bi-person-circle me-1"></i> 用户名
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 主内容 -->
+                <div class="main-content">
+                    <!-- 表单卡片 -->
+                    <div class="card form-section">
+                        <h3 class="form-title">新增收支记录</h3>
+                        
+                        <!-- 收支类型切换 -->
+                        <div class="type-switch">
+                            <button class="type-btn active" data-type="expense">
+                                <i class="bi bi-arrow-down me-1"></i> 支出
+                            </button>
+                            <button class="type-btn" data-type="income">
+                                <i class="bi bi-arrow-up me-1"></i> 收入
+                            </button>
+                            <button class="type-btn" data-type="transfer">
+                                <i class="bi bi-arrow-left-right me-1"></i> 转账
+                            </button>
+                        </div>
+                        
+                        <!-- 金额输入 -->
+                        <div class="text-center">
+                            <span id="amountPrefix">¥</span>
+                            <input type="number" class="amount-input" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        
+                        <form>
+                            <!-- 基本信息 -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">日期</label>
+                                    <input type="date" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">时间</label>
+                                    <input type="time" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- 分类选择 -->
+                            <div class="category-section">
+                                <label class="form-label">分类</label>
+                                <div class="category-grid">
+                                    <div class="category-item active">
+                                        <div class="category-icon">
+                                            <i class="bi bi-utensils"></i>
+                                        </div>
+                                        <div class="category-name">餐饮</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-shop"></i>
+                                        </div>
+                                        <div class="category-name">购物</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-car-front"></i>
+                                        </div>
+                                        <div class="category-name">交通</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-house"></i>
+                                        </div>
+                                        <div class="category-name">住房</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-film"></i>
+                                        </div>
+                                        <div class="category-name">娱乐</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-book"></i>
+                                        </div>
+                                        <div class="category-name">教育</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-heart-pulse"></i>
+                                        </div>
+                                        <div class="category-name">医疗</div>
+                                    </div>
+                                    <div class="category-item">
+                                        <div class="category-icon">
+                                            <i class="bi bi-plus-circle"></i>
+                                        </div>
+                                        <div class="category-name">更多</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 账户选择 -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">账户</label>
+                                    <select class="form-select">
+                                        <option value="alipay">支付宝</option>
+                                        <option value="wechat">微信</option>
+                                        <option value="cash">现金</option>
+                                        <option value="bank">银行卡</option>
+                                    </select>
+                                </div>
+                                <!-- 转账专用字段 -->
+                                <div class="form-group transfer-fields">
+                                    <label class="form-label">目标账户</label>
+                                    <select class="form-select">
+                                        <option value="bank">银行卡</option>
+                                        <option value="alipay">支付宝</option>
+                                        <option value="wechat">微信</option>
+                                        <option value="cash">现金</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- 备注 -->
+                            <div class="form-group">
+                                <label class="form-label">备注</label>
+                                <textarea class="form-control" rows="3" placeholder="添加备注信息"></textarea>
+                            </div>
+                            
+                            <!-- 标签选择 -->
+                            <div class="tags-section">
+                                <label class="form-label">标签</label>
+                                <div class="tags-container">
+                                    <div class="tag-item active">日常</div>
+                                    <div class="tag-item">固定支出</div>
+                                    <div class="tag-item">人情</div>
+                                    <div class="tag-item">工作</div>
+                                    <div class="tag-item">娱乐</div>
+                                    <div class="tag-item">交通</div>
+                                    <div class="tag-item">餐饮</div>
+                                    <div class="tag-item">购物</div>
+                                    <div class="tag-item">教育</div>
+                                    <div class="tag-item">医疗</div>
+                                </div>
+                            </div>
+                            
+                            <!-- 操作按钮 -->
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline-secondary" onclick="location.href='records.html'">取消</button>
+                                <button type="submit" class="btn btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 自定义脚本 -->
+    <script>
+        // 收支类型切换
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                // 添加当前active类
+                this.classList.add('active');
+                
+                const type = this.dataset.type;
+                const amountPrefix = document.getElementById('amountPrefix');
+                const transferFields = document.querySelectorAll('.transfer-fields');
+                
+                // 根据类型显示不同字段
+                if (type === 'transfer') {
+                    transferFields.forEach(field => field.classList.add('show'));
+                    amountPrefix.textContent = '¥';
+                } else {
+                    transferFields.forEach(field => field.classList.remove('show'));
+                    amountPrefix.textContent = type === 'income' ? '+' : '-';
+                }
+            });
+        });
+        
+        // 分类选择
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 标签选择
+        document.querySelectorAll('.tag-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
