@@ -5,15 +5,19 @@ import (
 
 	"github.com/family-bill/bill-server/api"
 	v1 "github.com/family-bill/bill-server/api/v1"
+	"github.com/family-bill/bill-server/internal/config"
 )
 
 // SetupRouter 设置路由
-func SetupRouter() *gin.Engine {
+func SetupRouter(cfg *config.Config) *gin.Engine {
 	// 创建 Gin 引擎
 	r := gin.Default()
 
 	// 健康检查路由
-	r.GET("/health", api.HealthCheck)
+	r.GET("/health", func(c *gin.Context) {
+		c.Set("version", cfg.Version)
+		api.HealthCheck(c)
+	})
 
 	// API 路由组
 	apiGroup := r.Group("/api/v1")
@@ -64,9 +68,6 @@ func SetupRouter() *gin.Engine {
 			books.POST("", v1.CreateBook)
 			books.PUT("/:id", v1.UpdateBook)
 			books.DELETE("/:id", v1.DeleteBook)
-			books.GET("/:id/access", v1.GetBookAccess)
-			books.GET("/:id/permissions", v1.GetBookPermissions)
-			books.PUT("/:id/permissions/:userId", v1.SetBookPermission)
 		}
 
 		// 权限控制

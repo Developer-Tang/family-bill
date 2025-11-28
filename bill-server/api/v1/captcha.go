@@ -36,7 +36,7 @@ func SendSmsCaptcha(c *gin.Context) {
 		"code":    200,
 		"message": "短信验证码发送成功",
 		"data": gin.H{
-			"phone":     "13800138000",
+			"phone":      "13800138000",
 			"expires_in": 300,
 		},
 	})
@@ -48,7 +48,7 @@ func SendEmailCaptcha(c *gin.Context) {
 		"code":    200,
 		"message": "邮箱验证码发送成功",
 		"data": gin.H{
-			"email":     "user@example.com",
+			"email":      "user@example.com",
 			"expires_in": 300,
 		},
 	})
@@ -60,7 +60,7 @@ func SendVoiceCaptcha(c *gin.Context) {
 		"code":    200,
 		"message": "语音验证码发送成功",
 		"data": gin.H{
-			"phone":     "13800138000",
+			"phone":      "13800138000",
 			"expires_in": 300,
 		},
 	})

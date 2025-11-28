@@ -30,7 +30,7 @@ func main() {
 	gin.SetMode(cfg.Server.Mode)
 
 	// 设置路由
-	r := router.SetupRouter()
+	r := router.SetupRouter(cfg)
 
 	// 启动服务器
 	addr := fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port)

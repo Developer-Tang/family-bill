@@ -9,12 +9,16 @@ import (
 
 // Config 应用配置结构体
 type Config struct {
+	Version    string           `yaml:"version"`
 	Server     ServerConfig     `yaml:"server"`
 	Database   DatabaseConfig   `yaml:"database"`
 	JWT        JWTConfig        `yaml:"jwt"`
 	Log        LogConfig        `yaml:"log"`
 	DateFormat DateFormatConfig `yaml:"date_format"`
 }
+
+// GlobalConfig 全局配置变量
+var GlobalConfig *Config
 
 // ServerConfig 服务器配置
 type ServerConfig struct {
@@ -73,7 +77,7 @@ type DateFormatConfig struct {
 func LoadConfig(configPath string) (*Config, error) {
 	// 如果没有提供配置路径，使用默认路径
 	if configPath == "" {
-		configPath = filepath.Join("configs", "config.yaml")
+		configPath = filepath.Join("config.yaml")
 	}
 
 	// 读取配置文件
@@ -90,6 +94,9 @@ func LoadConfig(configPath string) (*Config, error) {
 
 	// 从环境变量覆盖配置
 	overrideFromEnv(&config)
+
+	// 设置全局配置
+	GlobalConfig = &config
 
 	return &config, nil
 }
