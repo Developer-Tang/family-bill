@@ -34,7 +34,8 @@ func InitDatabase(cfg *config.DatabaseConfig) error {
 		// SQLite 连接配置
 		log.Info().Str("path", cfg.SQLite.Path).Msg("Using SQLite database")
 		// 使用glebarez/sqlite驱动，它支持modernc.org/sqlite，不需要CGO编译
-		DB, err = gorm.Open(sqlite.Open(cfg.SQLite.Path), &gorm.Config{
+		// 添加连接参数，确保UTF-8编码
+		DB, err = gorm.Open(sqlite.Open(cfg.SQLite.Path+"?cache=shared&mode=rwc&_journal_mode=WAL&_charset=utf8"), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err != nil {

@@ -13,6 +13,20 @@ func SetupRouter(cfg *config.Config) *gin.Engine {
 	// 创建 Gin 引擎
 	r := gin.Default()
 
+	// 设置默认编码为UTF-8，解决中文乱码问题
+	r.Use(func(c *gin.Context) {
+		// 设置响应的编码为UTF-8
+		c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		c.Next()
+	})
+
+	// 配置Gin的JSON序列化器，禁用Unicode转义
+	gin.EnableJsonDecoderUseNumber()
+	gin.EnableJsonDecoderDisallowUnknownFields()
+
+	// 设置安全JSON前缀为空
+	r.SecureJsonPrefix("")
+
 	// 健康检查路由
 	r.GET("/health", func(c *gin.Context) {
 		c.Set("version", cfg.Version)
