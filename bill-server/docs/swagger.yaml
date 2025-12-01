@@ -1,6 +1,24 @@
-basePath: /api/v1
 definitions:
-  controller.RegisterRequest:
+  bo.LoginBo:
+    description: 用户登录请求参数
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  bo.RefreshTokenBo:
+    description: 刷新token请求参数
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  bo.RegisterBo:
     properties:
       email:
         type: string
@@ -14,7 +32,24 @@ definitions:
     - password
     - username
     type: object
-  utils.Response:
+  vo.AuthVO:
+    properties:
+      access_token:
+        type: string
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      refresh_token:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  vo.R:
     properties:
       code:
         description: 状态码，0表示成功，其他表示错误
@@ -31,19 +66,122 @@ definitions:
         description: 交易ID
         type: string
     type: object
+  vo.UserVO:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      role:
+        type: string
+      username:
+        type: string
+    type: object
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: 家庭账单管理系统API
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Family Bill API
-  version: 1.0.0
+  contact: {}
 paths:
+  /users/{userID}:
+    post:
+      consumes:
+      - application/json
+      description: 根据用户ID查询用户信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/vo.R'
+            - properties:
+                data:
+                  $ref: '#/definitions/vo.UserVO'
+              type: object
+        "401":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/vo.R'
+      summary: 获取用户信息
+      tags:
+      - 用户管理
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录，返回token
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bo.LoginBo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/vo.R'
+            - properties:
+                data:
+                  $ref: '#/definitions/vo.AuthVO'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/vo.R'
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/vo.R'
+      summary: 用户登录
+      tags:
+      - 用户管理
+  /users/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: 使用refresh_token刷新access_token
+      parameters:
+      - description: 刷新token请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bo.RefreshTokenBo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/vo.R'
+            - properties:
+                data:
+                  $ref: '#/definitions/vo.AuthVO'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/vo.R'
+        "401":
+          description: 无效的refresh_token
+          schema:
+            $ref: '#/definitions/vo.R'
+      summary: 刷新token
+      tags:
+      - 用户管理
   /users/register:
     post:
       consumes:
@@ -55,18 +193,23 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/controller.RegisterRequest'
+          $ref: '#/definitions/bo.RegisterBo'
       produces:
       - application/json
       responses:
         "200":
           description: 成功响应
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/vo.R'
+            - properties:
+                data:
+                  $ref: '#/definitions/vo.AuthVO'
+              type: object
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/vo.R'
       summary: 用户注册
       tags:
       - 用户管理

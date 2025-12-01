@@ -1,56 +1,38 @@
-package middleware
+package handler
 
 import (
 	"bytes"
 	"io"
 	"log"
-	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/family-bill/bill-server/internal/constant"
+	"github.com/family-bill/bill-server/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
-// 静态文件后缀列表
-var staticFileExtensions = map[string]bool{
-	".css":   true,
-	".js":    true,
-	".png":   true,
-	".jpg":   true,
-	".jpeg":  true,
-	".gif":   true,
-	".svg":   true,
-	".ico":   true,
-	".woff":  true,
-	".woff2": true,
-	".ttf":   true,
-	".otf":   true,
-	".map":   true,
-}
-
-// isStaticFile 判断是否为静态文件
-func isStaticFile(path string) bool {
-	// 获取文件后缀
-	ext := strings.ToLower(filepath.Ext(path))
-	// 检查是否为静态文件后缀
-	if _, ok := staticFileExtensions[ext]; ok {
-		return true
-	}
-	// 特殊处理Swagger相关文件
-	if strings.Contains(path, "/swagger/") {
-		return true
-	}
-	return false
-}
-
-// RequestLogger 请求日志中间件
-func RequestLogger() gin.HandlerFunc {
+// InitFilter 请求中间件
+func InitReqAroundHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 从上下文获取交易ID
-		tradeID, _ := c.Get(TradeIDKey)
+		method := c.Request.Method
+		path := c.Request.URL.Path
 
-		// 开始时间
-		startTime := time.Now()
+		// 解析请求客户端类型
+		clientType := util.GetClientType(c)
+		c.Set(constant.ClientTypeKey, clientType)
+
+		// 解析请求用户ID
+		userID := util.GetUserID(c)
+		c.Set(constant.UserIDKey, userID)
+
+		// 生成交易ID
+		tradeID := util.GenerateUUID()
+		// 将交易ID添加到上下文
+		c.Set(constant.TradeIDKey, tradeID)
+
+		// 记录请求参数
+		params := c.Request.URL.Query()
 
 		// 记录请求体
 		var requestBody []byte
@@ -60,14 +42,14 @@ func RequestLogger() gin.HandlerFunc {
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 		}
 
-		// 记录请求参数
-		params := c.Request.URL.Query()
-
 		// 创建响应体记录器
 		responseBody := &bytes.Buffer{}
 		c.Writer = &responseWriter{body: responseBody, ResponseWriter: c.Writer}
 
-		// 处理请求
+		// 开始时间
+		startTime := time.Now()
+
+		// 继续处理请求
 		c.Next()
 
 		// 结束时间
@@ -75,19 +57,18 @@ func RequestLogger() gin.HandlerFunc {
 		// 计算用时
 		latency := endTime.Sub(startTime)
 
-		// 判断是否为静态文件
-		path := c.Request.URL.Path
-		if isStaticFile(path) {
+		// 全部接口POST编写
+		if !strings.EqualFold(method, "POST") {
 			// 静态文件，只记录基本信息，不记录响应体
 			log.Printf(
 				"[REQUEST] Path: %s, Method: %s, Params: %v, Body: %s, Status: %d, Latency: %v, TradeID: %s",
-				path,
+				c.Request.URL.Path,
 				c.Request.Method,
 				params,
 				string(requestBody),
 				c.Writer.Status(),
 				latency,
-				tradeID.(string),
+				tradeID,
 			)
 			return
 		}
@@ -103,7 +84,7 @@ func RequestLogger() gin.HandlerFunc {
 			c.Writer.Status(),
 			responseBody.String(),
 			latency,
-			tradeID.(string),
+			tradeID,
 		)
 	}
 }
@@ -118,14 +99,4 @@ type responseWriter struct {
 func (w *responseWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
-}
-
-func parseValidationError(err error) string {
-	// 从原始错误信息中提取Error:后面的内容
-	errStr := err.Error()
-	if idx := strings.Index(errStr, "Error:"); idx != -1 {
-		return strings.TrimSpace(errStr[idx+6:])
-	}
-
-	return errStr
 }

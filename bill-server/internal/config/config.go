@@ -1,4 +1,4 @@
-package utils
+package config
 
 import (
 	"log"
@@ -52,8 +52,16 @@ type LoggerConfig struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 }
 
+var (
+	YamlConfig *Config
+)
+
 // LoadConfig 加载配置
 func LoadConfig() *Config {
+	if YamlConfig != nil {
+		return YamlConfig
+	}
+
 	viper.AddConfigPath("./data")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -61,11 +69,10 @@ func LoadConfig() *Config {
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Failed to read config file: %v", err)
 	}
-
-	var config Config
-	if err := viper.Unmarshal(&config); err != nil {
+	YamlConfig = &Config{}
+	if err := viper.Unmarshal(YamlConfig); err != nil {
 		log.Fatalf("Failed to unmarshal config: %v", err)
 	}
 
-	return &config
+	return YamlConfig
 }

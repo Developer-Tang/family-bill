@@ -1,21 +1,21 @@
-package logger
+package util
 
 import (
 	"os"
 	"path/filepath"
 
-	"github.com/family-bill/bill-server/pkg/utils"
+	"github.com/family-bill/bill-server/internal/config"
 	"github.com/sirupsen/logrus"
 )
 
-var Log *logrus.Logger
-
 // InitLogger 初始化日志
-func InitLogger(config *utils.Config) {
-	Log = logrus.New()
+func InitLogger() {
+	Log := logrus.New()
+
+	cfg := config.YamlConfig.Logger
 
 	// 设置日志级别
-	level, err := logrus.ParseLevel(config.Logger.Level)
+	level, err := logrus.ParseLevel(cfg.Level)
 	if err != nil {
 		level = logrus.InfoLevel
 	}
@@ -28,12 +28,12 @@ func InitLogger(config *utils.Config) {
 	})
 
 	// 创建日志目录
-	if err := os.MkdirAll(config.Logger.Path, 0755); err != nil {
+	if err = os.MkdirAll(cfg.Path, 0755); err != nil {
 		Log.Fatalf("Failed to create log directory: %v", err)
 	}
 
 	// 设置日志文件
-	logFile := filepath.Join(config.Logger.Path, "app.log")
+	logFile := filepath.Join(cfg.Path, "app.log")
 	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		Log.Fatalf("Failed to open log file: %v", err)
@@ -44,7 +44,7 @@ func InitLogger(config *utils.Config) {
 	Log.AddHook(&fileHook{
 		file:     file,
 		filename: logFile,
-		config:   config.Logger,
+		config:   cfg,
 	})
 }
 
@@ -52,7 +52,7 @@ func InitLogger(config *utils.Config) {
 type fileHook struct {
 	file     *os.File
 	filename string
-	config   utils.LoggerConfig
+	config   config.LoggerConfig
 }
 
 // Write 写入日志
